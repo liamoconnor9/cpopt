@@ -64,7 +64,7 @@ grad_u = d3.grad(u) + ey*lift(tau_u1,-1) # First-order reduction
 problem = d3.NLBVP([u, p, tau_p, tau_u1, tau_u2], namespace=locals())
 problem.add_equation("trace(grad_u) + tau_p = 0")
 # problem.add_equation("grad(p) - nu*div(grad_u) + lift(tau_u2,-1) = - u @ grad(u)")
-problem.add_equation("grad(p) - nu*div(grad_u) + lift(tau_u2,-1) = 1e1*nu*phi*(u - U) - u @ grad(u)")
+problem.add_equation("grad(p) - nu*div(grad_u) + lift(tau_u2,-1) = phi*(u - U)/tau")
 
 problem.add_equation("integ(p) = 0") # Pressure gauge
 # problem.add_equation("p(y='left') = 0")
