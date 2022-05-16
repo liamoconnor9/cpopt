@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import dedalus.public as d3
+from dedalus.core import domain
 import logging
 logger = logging.getLogger(__name__)
 from scipy.optimize import minimize
@@ -9,12 +10,12 @@ from scipy.optimize import minimize
 Lx, Ly = 10, 2*np.pi
 Nx, Ny = 256, 128
 dtype = np.float64
-Reynolds = 1e4
+Reynolds = 1e2
 nu = 1 / Reynolds
 U0 = 1
-tau = 1e2
-max_timestep = 0.01
-stop_sim_time = 1e2
+tau = 1e0
+max_timestep = 0.001
+stop_sim_time = 1e1
 
 # Bases
 coords = d3.CartesianCoordinates('y', 'x')
@@ -52,8 +53,10 @@ else:
         phi_g = np.load(f)
 
 # phi_g = np.exp(-(r / sigma)**2)
+domain = domain.Domain(dist, bases)
+slices = dist.grid_layout.slices(domain, scales=1)
 phi = dist.Field(name='phi', bases=bases)
-phi['g'] = phi_g
+phi['g'] = phi_g[slices]
 logger.info('done solving SDF. Mask function phi constructed.')
 
 #################################################################
@@ -90,7 +93,7 @@ u['g'] = U['g'].copy()
 solver = problem.build_solver(d3.RK222)
 solver.stop_sim_time = stop_sim_time
 
-CFL = d3.CFL(solver, initial_dt=max_timestep, cadence=10, safety=30, threshold=0.1,
+CFL = d3.CFL(solver, initial_dt=max_timestep, cadence=10, safety=0.5, threshold=0.1,
              max_change=1.5, min_change=0.5, max_dt=max_timestep)
 CFL.add_velocity(u)
 
