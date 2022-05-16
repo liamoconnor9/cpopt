@@ -13,9 +13,9 @@ dtype = np.float64
 Reynolds = 1e2
 nu = 1 / Reynolds
 U0 = 1
-tau = 1e0
+tau = 5e0
 max_timestep = 0.001
-stop_sim_time = 1e1
+stop_sim_time = 1e-1
 
 # Bases
 coords = d3.CartesianCoordinates('y', 'x')
@@ -24,7 +24,7 @@ ybasis = d3.RealFourier(coords['y'], size=Ny, bounds=(-Ly/2, Ly/2), dealias=3/2)
 xbasis = d3.ChebyshevT(coords['x'], size=Nx, bounds=(-Lx/2, Lx/2), dealias=3/2)
 bases = (ybasis, xbasis)
 ey, ex = coords.unit_vector_fields(dist)
-y, x = dist.local_grids(ybasis, xbasis)
+y, x = ybasis.global_grid(), xbasis.global_grid()
 y_g = y * np.ones_like(x)
 x_g = x * np.ones_like(y)
 dy = lambda A: d3.Differentiate(A, coords.coords[0])
@@ -101,13 +101,24 @@ CFL.add_velocity(u)
 flow = d3.GlobalFlowProperty(solver, cadence=10)
 flow.add_property(np.sqrt((u@ex)**2 + (u@ey)**2), name='u_mag')
 
+ts = []
+max_us = []
+
 while solver.proceed:
     timestep = CFL.compute_timestep()
     solver.step(timestep)
     if (solver.iteration-1) % 10 == 0:
         max_u_mag = flow.max('u_mag')
+        max_us.append(max_u_mag)
+        ts.append(solver.sim_time)
         logger.info('Iteration=%i, Time=%e, dt=%e, max(|u|)=%f' %(solver.iteration, solver.sim_time, timestep, max_u_mag))
 
+if (dist.comm.rank == 0):
+    plt.plot(ts, max_us)
+    plt.xlabel(r"$t$")
+    plt.ylabel(r"$L-\infty [\vec{u}]$")
+    plt.show()
+dist.comm.Barrier()
 
 # Gather global data
 x = xbasis.global_grid()
@@ -135,5 +146,5 @@ if dist.comm.rank == 0:
     # plt.title("Flow Speed")
     plt.tight_layout()
     # plt.savefig('stokes.pdf')
-    plt.savefig('stokes.png', dpi=200)
-    plt.show()
+    plt.savefig('ns_flow.png', dpi=200)
+    # plt.show()

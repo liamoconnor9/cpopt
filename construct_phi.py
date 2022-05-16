@@ -23,8 +23,11 @@ def construct_phi(dist, coords, bases):
     #circle
     scale = 0.75
     a = [a0, 0.4, (-1.2), 0, 0]
-    ks = [0, 1, -1, 2, -2]
-
+    n = len(a)
+    ks = [0]
+    for i in range(2, n + 1):
+        ks.append((-1)**i * int(i / 2))
+        
     a = [ak*scale*rot_exp for ak in a]
 
     thetas = np.linspace(0, 2*np.pi, 1000)
@@ -80,5 +83,5 @@ def construct_phi(dist, coords, bases):
             # print("(x, y) = ({}, {})".format(x, y))
     SDF = 2.0*(enclosed-0.5)*DF
 
-    phi_g = np.tanh(100*SDF) + 0.5
+    phi_g = np.tanh(2*SDF) + 0.5
     return phi_g
