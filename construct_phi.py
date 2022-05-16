@@ -17,8 +17,15 @@ def construct_phi(dist, coords, bases):
 
     #ellipse
     a0 = 0.0
-    a = [a0, 0.4, 1.2-0.8j, 0, 0]
+    rotation = 15
+    rot_exp = np.exp(1j*(rotation / 180 * np.pi))
+
+    #circle
+    scale = 0.75
+    a = [a0, 0.4, (-1.2), 0, 0]
     ks = [0, 1, -1, 2, -2]
+
+    a = [ak*scale*rot_exp for ak in a]
 
     thetas = np.linspace(0, 2*np.pi, 1000)
     r = np.zeros(thetas.shape, dtype=np.complex128)

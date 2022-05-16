@@ -12,9 +12,9 @@ dtype = np.float64
 Reynolds = 1e4
 nu = 1 / Reynolds
 U0 = 1
-tau = 1e-4
-max_timestep = 0.001
-stop_sim_time = 0.1
+tau = 1e2
+max_timestep = 0.01
+stop_sim_time = 1e2
 
 # Bases
 coords = d3.CartesianCoordinates('y', 'x')
@@ -53,7 +53,7 @@ else:
 
 # phi_g = np.exp(-(r / sigma)**2)
 phi = dist.Field(name='phi', bases=bases)
-# phi['g'] = phi_g
+phi['g'] = phi_g
 logger.info('done solving SDF. Mask function phi constructed.')
 
 #################################################################
@@ -66,26 +66,31 @@ grad_u = d3.grad(u) + ex*lift(tau_u1,-1) # First-order reduction
 problem = d3.IVP([u, p, tau_p, tau_u1, tau_u2], namespace=locals())
 
 problem.add_equation("trace(grad_u) + tau_p = 0")
-# problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = -u@grad(u) ")
-problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = phi*(u - U)/tau")
+# problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) =  ")
+problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = -u@grad(u) - phi*(u)/tau")
 
-if True:
+if False:
     problem.add_equation("u(x='left') = u(x='right')")
     problem.add_equation("dx(u)(x='left') = dx(u)(x='right')")
 else:
-    problem.add_equation("(u @ ex)(x='left') = 0")
+    # problem.add_equation("u(x='left') = 0")
+    # problem.add_equation("u(x='right') = 0")
+
+    problem.add_equation("(u @ ex)(x='left') = U0")
     problem.add_equation("(u @ ey)(x='left') = 0")
 
-    problem.add_equation("(u @ ex)(x='right') = 0")
+    problem.add_equation("(u @ ex)(x='right') = U0")
     problem.add_equation("(u @ ey)(x='right') = 0")
 
 problem.add_equation("integ(p) = 0") # Pressure gauge
+
+u['g'] = U['g'].copy()
 
 # Solver
 solver = problem.build_solver(d3.RK222)
 solver.stop_sim_time = stop_sim_time
 
-CFL = d3.CFL(solver, initial_dt=max_timestep, cadence=10, safety=0.1, threshold=0.1,
+CFL = d3.CFL(solver, initial_dt=max_timestep, cadence=10, safety=30, threshold=0.1,
              max_change=1.5, min_change=0.5, max_dt=max_timestep)
 CFL.add_velocity(u)
 
