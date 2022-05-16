@@ -85,7 +85,8 @@ problem = d3.IVP([u, p, tau_p, tau_u1, tau_u2], namespace=locals())
 
 problem.add_equation("trace(grad_u) + tau_p = 0")
 # problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) =  ")
-problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = -u@grad(u) - phi*(u)/tau")
+# problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = -u@grad(u) - phi*(u)/tau")
+problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = - phi*(u)/tau")
 
 if False:
     problem.add_equation("u(x='left') = u(x='right')")
