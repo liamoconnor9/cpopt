@@ -15,7 +15,7 @@ nu = 1 / Reynolds
 U0 = 1
 tau = 5e0
 max_timestep = 0.001
-stop_sim_time = 1e-1
+stop_sim_time = 1e1
 
 # Bases
 coords = d3.CartesianCoordinates('y', 'x')
@@ -43,22 +43,37 @@ U['g'][1] = U0
 
 # Mask function (airfoil geometry)
 #################################################################
-if False:
-    from construct_phi import construct_phi
-    phi_g = construct_phi(dist, coords, bases)
-    with open('phi_g.npy', 'wb') as f:
-        np.save(f, phi_g)
+# if False:
+#     from construct_phi import construct_phi
+#     phi_g = construct_phi(dist, coords, bases)
+#     with open('phi_g.npy', 'wb') as f:
+#         np.save(f, phi_g)
+if True:
+    from construct_phi_diff import construct_phi_diff
+
+    a0 = 0.0
+    a = [a0, 0.4, (-1.2), 0, 0]
+
+    rotation = 80
+    rot_exp = np.exp(1j*(rotation / 180 * np.pi))
+    scale = 0.75
+    a = [ak*scale*rot_exp for ak in a]
+
+    phi_g = construct_phi_diff(a, 0.03, 100, dist, coords, bases)
+    dist.comm.Barrier()
+    # with open('phi_g.npy', 'wb') as f:
+        # np.save(f, phi_g)
 else:
     with open('phi_g.npy', 'rb') as f:
         phi_g = np.load(f)
 
 # phi_g = np.exp(-(r / sigma)**2)
-domain = domain.Domain(dist, bases)
-slices = dist.grid_layout.slices(domain, scales=1)
+# domain = domain.Domain(dist, bases)
+# slices = dist.grid_layout.slices(domain, scales=1)
 phi = dist.Field(name='phi', bases=bases)
-phi['g'] = phi_g[slices]
+phi['g'] = phi_g
 logger.info('done solving SDF. Mask function phi constructed.')
-
+dist.comm.Barrier()
 #################################################################
 
 
@@ -103,48 +118,49 @@ flow.add_property(np.sqrt((u@ex)**2 + (u@ey)**2), name='u_mag')
 
 ts = []
 max_us = []
+dist.comm.Barrier()
 
 while solver.proceed:
     timestep = CFL.compute_timestep()
     solver.step(timestep)
     if (solver.iteration-1) % 10 == 0:
         max_u_mag = flow.max('u_mag')
-        max_us.append(max_u_mag)
-        ts.append(solver.sim_time)
+        # max_us.append(max_u_mag)
+        # ts.append(solver.sim_time)
         logger.info('Iteration=%i, Time=%e, dt=%e, max(|u|)=%f' %(solver.iteration, solver.sim_time, timestep, max_u_mag))
 
-if (dist.comm.rank == 0):
-    plt.plot(ts, max_us)
-    plt.xlabel(r"$t$")
-    plt.ylabel(r"$L-\infty [\vec{u}]$")
-    plt.show()
-dist.comm.Barrier()
+# if (dist.comm.rank == 0):
+#     plt.plot(ts, max_us)
+#     plt.xlabel(r"$t$")
+#     plt.ylabel(r"$L-\infty [\vec{u}]$")
+#     plt.show()
+# dist.comm.Barrier()
 
-# Gather global data
-x = xbasis.global_grid()
-y = ybasis.global_grid()
-# u.change_scales(1)
-ux = ((u) @ ex).evaluate()
-ux.change_scales(1)
-ugx = ux.allgather_data('g')
+# # Gather global data
+# x = xbasis.global_grid()
+# y = ybasis.global_grid()
+# # u.change_scales(1)
+# ux = ((u) @ ex).evaluate()
+# ux.change_scales(1)
+# ugx = ux.allgather_data('g')
 
-uy = ((u) @ ey).evaluate()
-uy.change_scales(1)
-ugy = uy.allgather_data('g')
-mag_u = np.sqrt(ugx**2 + ugy**2)
+# uy = ((u) @ ey).evaluate()
+# uy.change_scales(1)
+# ugy = uy.allgather_data('g')
+# mag_u = np.sqrt(ugx**2 + ugy**2)
 
-# Plot
-if dist.comm.rank == 0:
-    plt.figure(figsize=(6, 4))
-    res = 8
-    # plt.pcolormesh(x.ravel(), y.ravel(), phi_g.T, cmap='viridis', shading='gouraud', rasterized=True)
-    plt.pcolormesh(x.ravel(), y.ravel(), ugx, cmap='seismic', shading='gouraud', rasterized=True)
-    plt.quiver(x_g.T[::res, ::res], y_g.T[::res, ::res], ugx.T[::res, ::res], ugy.T[::res, ::res])
-    plt.gca().set_aspect('equal')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    # plt.title("Flow Speed")
-    plt.tight_layout()
-    # plt.savefig('stokes.pdf')
-    plt.savefig('ns_flow.png', dpi=200)
-    # plt.show()
+# # Plot
+# if dist.comm.rank == 0:
+#     plt.figure(figsize=(6, 4))
+#     res = 8
+#     # plt.pcolormesh(x.ravel(), y.ravel(), phi_g.T, cmap='viridis', shading='gouraud', rasterized=True)
+#     plt.pcolormesh(x.ravel(), y.ravel(), ugx, cmap='seismic', shading='gouraud', rasterized=True)
+#     plt.quiver(x_g.T[::res, ::res], y_g.T[::res, ::res], ugx.T[::res, ::res], ugy.T[::res, ::res])
+#     plt.gca().set_aspect('equal')
+#     plt.xlabel('x')
+#     plt.ylabel('y')
+#     # plt.title("Flow Speed")
+#     plt.tight_layout()
+#     # plt.savefig('stokes.pdf')
+#     plt.savefig('ns_flow.png', dpi=200)
+#     # plt.show()
