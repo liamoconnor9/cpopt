@@ -77,7 +77,7 @@ def construct_phi_diff(a, T, Ndt, dist, coords, bases):
             logger.info('Iteration=%i, Time=%e' %(solver.iteration, solver.sim_time))
     
     p.change_scales(1)
-    pdiff = p['g'].copy()
+    pdiff = p.allgather_data('g')
     pdiff -= np.min(pdiff)
     pdiff /= np.max(pdiff)
 
@@ -93,7 +93,7 @@ def construct_phi_diff(a, T, Ndt, dist, coords, bases):
     # plt.savefig('phi_diff.png', dpi=200)
 
 
-    return pdiff
+    return pdiff, rs
 
 
 # # Parameters
