@@ -16,7 +16,7 @@ Nx, Ny = 256, 128
 dtype = np.float64
 Reynolds = 1e2
 nu = 1 / Reynolds
-U0 = 10
+U0 = 1
 tau = 2e0
 max_timestep = 0.00025
 stop_sim_time = 4e2
@@ -97,7 +97,7 @@ problem.add_equation("integ(p) = 0") # Pressure gauge
 solver = problem.build_solver(d3.RK222)
 solver.stop_sim_time = stop_sim_time
 
-load_dir = "checkpoints4/"
+load_dir = "checkpoints_sdf/"
 checkpoint_names = [name for name in os.listdir(load_dir) if '.h5' in name]
 last_checkpoint = natsorted(checkpoint_names)[-1]
 solver.load_state(load_dir + last_checkpoint, -1)
@@ -124,7 +124,7 @@ if dist.comm.rank == 0:
     res = 8
     # plt.pcolormesh(x.ravel(), y.ravel(), phi_g.T, cmap='viridis', shading='gouraud', rasterized=True)
     plt.pcolormesh(x.ravel(), y.ravel(), mag_u, cmap='seismic', shading='gouraud', rasterized=True)
-    plt.fill(rx, ry, color='black')
+    # plt.fill(rx, ry, color='black')
     # plt.pcolormesh(x.ravel(), y.ravel(), phi_g, cmap='seismic', shading='gouraud', rasterized=True)
     plt.quiver(x_g.T[::res, ::res], y_g.T[::res, ::res], ugx.T[::res, ::res], ugy.T[::res, ::res])
     plt.gca().set_aspect('equal')

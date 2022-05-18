@@ -5,32 +5,25 @@ import logging
 logger = logging.getLogger(__name__)
 from scipy.optimize import minimize
 
-def construct_phi(dist, coords, bases):
+def construct_phi(a, delta, dist, coords, bases):
 
-    xbasis, ybasis = bases[0], bases[1]
-    ex, ey = coords.unit_vector_fields(dist)
-    x, y = dist.local_grids(xbasis, ybasis)
-    x_g = x * np.ones_like(y)
+    xbasis, ybasis = bases[1], bases[0]
+    ey, ex = coords.unit_vector_fields(dist)
+    y, x = ybasis.local_grid(), xbasis.local_grid()
+    # y, x = ybasis.global_grid(), xbasis.global_grid()
     y_g = y * np.ones_like(x)
+    x_g = x * np.ones_like(y)
     Nx = max(x.shape)
     Ny = max(y.shape)
 
     #ellipse
-    a0 = 0.0
-    rotation = 15
-    rot_exp = np.exp(1j*(rotation / 180 * np.pi))
-
-    #circle
-    scale = 0.75
-    a = [a0, 0.4, (-1.2), 0, 0]
     n = len(a)
     ks = [0]
     for i in range(2, n + 1):
         ks.append((-1)**i * int(i / 2))
         
-    a = [ak*scale*rot_exp for ak in a]
-
     thetas = np.linspace(0, 2*np.pi, 1000)
+
     r = np.zeros(thetas.shape, dtype=np.complex128)
     for i, theta in enumerate(thetas):
         for k, a_k in zip(ks, a):
@@ -39,9 +32,6 @@ def construct_phi(dist, coords, bases):
     rx = r.real
     ry = r.imag
     rs = list(zip(rx, ry))
-
-    # plt.scatter(rx, ry)
-    # plt.show()
 
     def distance_to_curve(theta, x, y, a, ks):
         r = 0 + 0j
@@ -66,22 +56,22 @@ def construct_phi(dist, coords, bases):
     enclosed = np.zeros_like(x_g)
     for ix in range(Nx):
         for iy in range(Ny):
-            if (curve.contains_points([(x_g[ix, iy], y_g[ix, iy])])):
-                enclosed[ix, iy] = 1
+            if (curve.contains_points([(x_g[iy, ix], y_g[iy, ix])])):
+                enclosed[iy, ix] = 1
 
     DF = np.zeros_like(x_g)
     counter = 0
     num_points = Nx * Ny
     for ix in range(Nx):
         for iy in range(Ny):
-            x = x_g[ix, iy]
-            y = y_g[ix, iy]
-            DF[ix, iy] = min_distance_to_curve(x, y, a, ks)
+            x = x_g[iy, ix]
+            y = y_g[iy, ix]
+            DF[iy, ix] = min_distance_to_curve(x, y, a, ks)
             if (counter % 1000 == 0):
                 logger.info("{:.0%} done solving..".format(counter / num_points))
             counter += 1
             # print("(x, y) = ({}, {})".format(x, y))
     SDF = 2.0*(enclosed-0.5)*DF
 
-    phi_g = np.tanh(2*SDF) + 0.5
-    return phi_g
+    phi_g = (np.tanh(2*SDF / delta) + 1.0) / 2.0
+    return phi_g, rs
