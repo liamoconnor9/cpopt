@@ -85,7 +85,7 @@ def construct_phi(a, delta, dist, coords, bases):
     # plt.scatter(dists*np.cos(thetas_adj), dists*np.sin(thetas_adj))
 
     # plt.axvline(x=np.arctan(1/2)) 
-    # plt.axhline(y=0) 
+    plt.axhline(y=0, linestyle=':', color='black') 
 
     sin_coeff_trunc = []
     cos_coeff_trunc = []
@@ -104,8 +104,7 @@ def construct_phi(a, delta, dist, coords, bases):
 
 
     # plt.show()
-    plt.savefig('dist_prime.png')
-    plt.close()
+
 
     # https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
     # computing the roots of the distance function's derivative to find extrema (this can be done explicitly)
@@ -138,6 +137,26 @@ def construct_phi(a, delta, dist, coords, bases):
         recon += cos_c * np.cos((i+1) * roots)
     print(recon)
 
+    rrs = []
+    for root in roots:
+        if root.imag < 1e-8:
+            rr = root.real
+            if rr < 0:
+                rr += 2*np.pi
+            rrs.append(rr)
+            plt.axvline(x=rr, linestyle=':', color='black')
+
+    rrs = np.array(rrs)
+    root_dists = np.zeros_like(rrs, dtype=np.complex128)
+    for k, a_k in zip(ks, a):
+        root_dists += a_k * np.exp(1j*k*rrs)
+
+    rootdmagsq = (root_dists * root_dists.conj()).real
+    max_ind = np.argmax(rootdmagsq)
+    plt.scatter([rrs[max_ind]], rootdmagsq[max_ind], marker='x', color='black')
+
+    plt.savefig('dist_prime.png')
+    plt.close()
     # print(roots)
     sys.exit()
 
