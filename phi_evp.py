@@ -24,8 +24,9 @@ def construct_phi(a, delta, dist, coords, bases):
     Ny = max(y.shape)
 
     a0 = -2.0
-    pt = 0
-    a = [a0 - pt, 1.0, 0.4, 1.4, 0.24, 0.124, 0.9]
+    pt = 1j
+    a = [a0 - pt, 1.0, 0.4]
+    # a = [a0 - pt, 1.0, 0.4, 1.4+0.64j, 0.24-1.44j, 0.124+3.8j, 0.9]
 
     #ellipse
     n = len(a)
@@ -44,6 +45,10 @@ def construct_phi(a, delta, dist, coords, bases):
 
         return dist_mat.sum(axis=tuple(range(dist_mat.ndim - 1))).real
 
+    kmax = round((n - 1) / 2)
+    sin_coeff = np.zeros(4*kmax + 1)
+    cos_coeff = np.zeros(4*kmax + 1)
+
     def dist_prime(thetas, a):
         n = len(a)
         dist_mat = np.zeros((n, n, len(thetas)), dtype=np.complex128)
@@ -51,14 +56,17 @@ def construct_phi(a, delta, dist, coords, bases):
         #     for row in range(n):
         for col in range(1, n):
             for row in range(col):
-                dist_mat[row, col, :] = -2*np.imag((ks[col]-ks[row])*(a[col] * np.conj(a[row]) * np.exp(1j*(ks[col]-ks[row])*thetas)))
+                # dist_mat[row, col, :] = -2*np.imag((ks[col]-ks[row])*(a[col] * np.conj(a[row]) * np.exp(1j*(ks[col]-ks[row])*thetas)))
+                dist_mat[row, col, :] += -2*(ks[col]-ks[row]) * np.real(a[col] * np.conj(a[row])) * np.sin((ks[col]-ks[row])*thetas)
+                dist_mat[row, col, :] += -2*(ks[col]-ks[row]) * np.imag(a[col] * np.conj(a[row])) * np.cos((ks[col]-ks[row])*thetas)
+
+                sin_coeff[(ks[col]-ks[row])] += -2*(ks[col]-ks[row]) * np.real(a[col] * np.conj(a[row]))
+                cos_coeff[(ks[col]-ks[row])] += -2*(ks[col]-ks[row]) * np.imag(a[col] * np.conj(a[row]))
 
         return dist_mat.sum(axis=tuple(range(dist_mat.ndim - 1))).real
 
-    sin_coeff = np.zeros(n)
-    cos_coeff = np.zeros(n)
 
-    thetas = np.linspace(-0.1, 2*np.pi+0.1, 200)
+    thetas = np.linspace(0.0, 2*np.pi, 200)
     dists = dist(thetas, a)
  
     r = np.zeros(thetas.shape, dtype=np.complex128)
@@ -78,14 +86,65 @@ def construct_phi(a, delta, dist, coords, bases):
 
     # plt.axvline(x=np.arctan(1/2)) 
     # plt.axhline(y=0) 
-    plt.show()
+
+    sin_coeff_trunc = []
+    cos_coeff_trunc = []
+    for i in range(1, 2*kmax + 1):
+        sin_coeff_trunc.append((sin_coeff[i] - sin_coeff[-i]))
+        cos_coeff_trunc.append((cos_coeff[i] + cos_coeff[-i]))
+
+    recon = np.zeros_like(thetas)
+    for i in range(len(sin_coeff_trunc)):
+        sin_c = sin_coeff_trunc[i]
+        cos_c = cos_coeff_trunc[i]
+        recon += sin_c * np.sin((i+1) * thetas)
+        recon += cos_c * np.cos((i+1) * thetas)
+
+    plt.plot(thetas, recon, linestyle='--')
+
+
+    # plt.show()
+    plt.savefig('dist_prime.png')
     plt.close()
+
+    # https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
+    # computing the roots of the distance function's derivative to find extrema (this can be done explicitly)
+    N = n - 1
+    hvec = np.zeros(2*N + 1, dtype=np.complex128)
+
+    for k in range(N):
+        hvec[k] = cos_coeff_trunc[N - k - 1] + 1j * sin_coeff_trunc[N - k - 1]
+    
+    for k in range(N + 1, 2*N + 1):
+        hvec[k] = cos_coeff_trunc[k - 1 - N] - 1j * sin_coeff_trunc[k - 1 - N]
+
+    B = np.zeros((2*N, 2*N), dtype=np.complex128)
+    for k in range(1, 2*N+1):
+        for j in range(1, 2*N+1):
+            if (j == 2*N):
+                B[j - 1, k - 1] = -hvec[k - 1] / (cos_coeff_trunc[-1] - 1j * sin_coeff_trunc[-1])
+            elif (j == k - 1):
+                B[j - 1, k - 1] = 1.0
+
+    w, v = np.linalg.eig(B)
+
+    roots = -1j*np.log(w) 
+
+    recon = np.zeros_like(roots)
+    for i in range(len(sin_coeff_trunc)):
+        sin_c = sin_coeff_trunc[i]
+        cos_c = cos_coeff_trunc[i]
+        recon += sin_c * np.sin((i+1) * roots)
+        recon += cos_c * np.cos((i+1) * roots)
+    print(recon)
+
+    # print(roots)
     sys.exit()
 
     # dists_comp = dists * np.exp(1j*thetas_adj)
 
-    rx2 = dists * np.cos(thetas_adj)
-    ry2 = dists * np.sin(thetas_adj)
+    rx2 = np.sqrt(dists) * np.cos(thetas_adj)
+    ry2 = np.sqrt(dists) * np.sin(thetas_adj)
     # rx2 = [dist*np.cos(theta) for dist, theta in zip(dists, thetas)]
     # ry2 = [dist*np.sin(theta) for dist, theta in zip(dists, thetas)]
 
