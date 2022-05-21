@@ -12,44 +12,29 @@ from natsort import natsorted
 from configparser import ConfigParser
 
 def min_dist(x, y, a):
-    anew = []
-    for ai in a:
-        anew.append(ai)
 
-    # print(anew)
-    # return x*y
-    # a0 = -2.0
+    anew = a.copy()
     pt = x + 1j*y
-    # a = [a0 - pt, 1.0, 0.4]
     anew[0] -= pt
-    ks = [0]
     n = len(anew)
-    for i in range(2, n + 1):
-        ks.append((-1)**i * int(i / 2))    
+    
+    ks = np.zeros(n) 
+    ks[1::2] = range(1, n//2 + 1)
+    ks[2::2] = range(-1, -n//2, -1)
+    ks = ks.astype(int)
 
-
-    kmax = round((n - 1) / 2)
-    sin_coeff = np.zeros(4*kmax + 1)
-    cos_coeff = np.zeros(4*kmax + 1)
+    N = n - 1
+    sin_coeff_trunc = np.zeros(N)
+    cos_coeff_trunc = np.zeros(N)
 
     for col in range(1, n):
         for row in range(col):
-            sin_coeff[(ks[col]-ks[row])] += -2*(ks[col]-ks[row]) * np.real(anew[col] * np.conj(anew[row]))
-            cos_coeff[(ks[col]-ks[row])] += -2*(ks[col]-ks[row]) * np.imag(anew[col] * np.conj(anew[row]))
+            sin_coeff_trunc[np.abs(ks[col]-ks[row]) - 1] += np.sign((ks[col]-ks[row]))*-2*(ks[col]-ks[row]) * np.real(anew[col] * np.conj(anew[row]))
+            cos_coeff_trunc[np.abs(ks[col]-ks[row]) - 1] += -2*(ks[col]-ks[row]) * np.imag(anew[col] * np.conj(anew[row]))
 
-    sin_coeff_trunc = []
-    cos_coeff_trunc = []
-    for i in range(1, 2*kmax + 1):
-        sin_coeff_trunc.append((sin_coeff[i] - sin_coeff[-i]))
-        cos_coeff_trunc.append((cos_coeff[i] + cos_coeff[-i]))
-
-    for i in range(len(sin_coeff_trunc)):
-        sin_c = sin_coeff_trunc[i]
-        cos_c = cos_coeff_trunc[i]
 
     # https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
     # computing the roots of the distance function's derivative to find extrema (this can be done explicitly)
-    N = n - 1
     hvec = np.zeros(2*N + 1, dtype=np.complex128)
 
     for k in range(N):
@@ -69,15 +54,6 @@ def min_dist(x, y, a):
     w, v = np.linalg.eig(B)
 
     roots = -1j*np.log(w) 
-
-    recon = np.zeros_like(roots)
-    for i in range(len(sin_coeff_trunc)):
-        sin_c = sin_coeff_trunc[i]
-        cos_c = cos_coeff_trunc[i]
-        recon += sin_c * np.sin((i+1) * roots)
-        recon += cos_c * np.cos((i+1) * roots)
-    # print(recon)
-
     rrs = []
     for root in roots:
         if root.imag < 1e-8:

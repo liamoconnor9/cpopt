@@ -12,8 +12,6 @@ from natsort import natsorted
 from configparser import ConfigParser
 from min_dist import min_dist
 
-
-
 def construct_phi(a, delta, dist, coords, bases):
 
     xbasis, ybasis = bases[1], bases[0]
@@ -94,7 +92,7 @@ if True:
 
     a0 = 0.2
     # a = [a0, 1.0, 0.4]
-    a = [a0, 1.0, 0.4, 1.4+0.64j, 0.24-1.44j, 0.124+3.8j, 0.9]
+    a = [a0, 1.0, 0.4, 1.4+0.64j, 0.24-1.44j, 0.124+3.8j, 0.1]
 
     rot_exp = np.exp(1j*(rotation / 180 * np.pi))
     a = [ak*scale*rot_exp for ak in a]
