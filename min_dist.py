@@ -24,30 +24,28 @@ def min_dist(x, y, a):
     ks = ks.astype(int)
 
     N = n - 1
-    sin_coeff_trunc = np.zeros(N)
-    cos_coeff_trunc = np.zeros(N)
+    coeff_trunc = np.zeros(N, dtype=np.complex128)
 
     for col in range(1, n):
         for row in range(col):
-            sin_coeff_trunc[np.abs(ks[col]-ks[row]) - 1] += np.sign((ks[col]-ks[row]))*-2*(ks[col]-ks[row]) * np.real(anew[col] * np.conj(anew[row]))
-            cos_coeff_trunc[np.abs(ks[col]-ks[row]) - 1] += -2*(ks[col]-ks[row]) * np.imag(anew[col] * np.conj(anew[row]))
-
+            if (ks[col] - ks[row] > 0):
+                coeff_trunc[np.abs(ks[col]-ks[row]) - 1] += -2j*(ks[col]-ks[row]) * np.conj(anew[col]) * anew[row]
+            else:
+                coeff_trunc[np.abs(ks[col]-ks[row]) - 1] +=  2j*(ks[col]-ks[row]) * anew[col] * np.conj(anew[row])
 
     # https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
-    # computing the roots of the distance function's derivative to find extrema (this can be done explicitly)
+    # computing the roots of the distance function's derivative to find the min distance (this can be done explicitly)
     hvec = np.zeros(2*N + 1, dtype=np.complex128)
 
-    for k in range(N):
-        hvec[k] = cos_coeff_trunc[N - k - 1] + 1j * sin_coeff_trunc[N - k - 1]
-    
-    for k in range(N + 1, 2*N + 1):
-        hvec[k] = cos_coeff_trunc[k - 1 - N] - 1j * sin_coeff_trunc[k - 1 - N]
+    hvec[:N] = coeff_trunc[N::-1]
+    hvec[N+1:2*N+1] = np.conj(coeff_trunc)
 
     B = np.zeros((2*N, 2*N), dtype=np.complex128)
     for k in range(1, 2*N+1):
         for j in range(1, 2*N+1):
             if (j == 2*N):
-                B[j - 1, k - 1] = -hvec[k - 1] / (cos_coeff_trunc[-1] - 1j * sin_coeff_trunc[-1])
+                B[j - 1, k - 1] = -hvec[k - 1] / np.conj(coeff_trunc[-1])
+                # B[j - 1, k - 1] = -hvec[k - 1] / (cos_coeff_trunc[-1] - 1j * sin_coeff_trunc[-1])
             elif (j == k - 1):
                 B[j - 1, k - 1] = 1.0
 
