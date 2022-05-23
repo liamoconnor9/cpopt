@@ -23,4 +23,4 @@ FILE="$(readlink -f "$0")"
 DIR="$(dirname "$(readlink -f "$0")")/"
 CONFIG="nsvp_options.cfg"
 
-mpirun -np 16 python3 ns_airfoil.py
+mpirun -np 32 python3 ns_airfoil.py

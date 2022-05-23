@@ -15,11 +15,6 @@ filename = path + '/nsvp_options.cfg'
 config = ConfigParser()
 config.read(str(filename))
 
-# Parameters
-Lx, Ly = 10, 2*np.pi
-Nx, Ny = 256, 128
-dtype = np.float64
-
 restart = config.getboolean('parameters', 'restart')
 run_name = str(config.get('parameters', 'run_name'))
 if not os.path.exists(path + '/' + run_name):
@@ -27,8 +22,8 @@ if not os.path.exists(path + '/' + run_name):
 
 
 Reynolds = config.getfloat('parameters', 'Reynolds')
-nu = 1 / Reynolds
 U0 = config.getfloat('parameters', 'U0')
+nu = U0 / Reynolds
 tau = config.getfloat('parameters', 'tau')
 delta = config.getfloat('parameters', 'delta')
 
@@ -37,6 +32,14 @@ rotation = config.getfloat('parameters', 'rotation')
 
 max_timestep = config.getfloat('parameters', 'max_dt')
 stop_sim_time = config.getfloat('parameters', 'T') + 0.1
+
+Nx = config.getint('parameters', 'Nx')
+Ny = config.getint('parameters', 'Ny')
+
+# Parameters
+Lx, Ly = 10, 2*np.pi
+Nx, Ny = 256, 128
+dtype = np.float64
 
 # Bases
 coords = d3.CartesianCoordinates('y', 'x')
