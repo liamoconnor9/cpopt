@@ -54,6 +54,9 @@ def construct_phi(a, delta, dist, coords, bases):
     curve = path.Path(rs) 
     # flags = p.contains_points(x_g, y_g)
     enclosed = np.zeros_like(x_g)
+
+    from datetime import datetime
+    startTime = datetime.now()
     for ix in range(Nx):
         for iy in range(Ny):
             if (curve.contains_points([(x_g[iy, ix], y_g[iy, ix])])):
@@ -71,7 +74,8 @@ def construct_phi(a, delta, dist, coords, bases):
                 logger.info("{:.0%} done solving..".format(counter / num_points))
             counter += 1
             # print("(x, y) = ({}, {})".format(x, y))
-    SDF = 2.0*(enclosed-0.5)*DF
+    logger.info('Elapsed time {}'.format(datetime.now() - startTime))
+    SDF = enclosed*DF
 
     phi_g = (np.tanh(2*SDF / delta) + 1.0) / 2.0
-    return phi_g, rs
+    return DF, rs

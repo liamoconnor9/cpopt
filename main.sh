@@ -12,7 +12,7 @@ deactivate
 unset PYTHONPATH
 source ~/miniconda3/etc/profile.d/conda.sh
 export PYTHONNOUSERSITE=1
-conda activate dedalus3
+conda activate dedalus-d3
 # support lots of text output to stdio for analysis
 export MPI_UNBUFFERED_STDIO=true
 

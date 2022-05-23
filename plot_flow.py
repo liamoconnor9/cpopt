@@ -107,11 +107,11 @@ fhmode = 'append'
 x = xbasis.global_grid()
 y = ybasis.global_grid()
 # u.change_scales(1)
-ux = ((u + U) @ ex).evaluate()
+ux = ((u - U) @ ex).evaluate()
 ux.change_scales(1)
 ugx = ux.allgather_data('g')
 
-uy = ((u + U) @ ey).evaluate()
+uy = ((u - U) @ ey).evaluate()
 uy.change_scales(1)
 ugy = uy.allgather_data('g')
 mag_u = np.sqrt(ugx**2 + ugy**2)

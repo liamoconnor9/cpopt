@@ -40,6 +40,7 @@ stop_sim_time = config.getfloat('parameters', 'T') + 0.1
 
 # Bases
 coords = d3.CartesianCoordinates('y', 'x')
+coords.name = coords.names
 dist = d3.Distributor(coords, dtype=dtype)
 ybasis = d3.RealFourier(coords['y'], size=Ny, bounds=(-Ly/2, Ly/2), dealias=3/2)
 xbasis = d3.ChebyshevT(coords['x'], size=Nx, bounds=(-Lx/2, Lx/2), dealias=3/2)
@@ -60,6 +61,7 @@ tau_u2 = dist.VectorField(coords, name='tau_u2', bases=(ybasis))
 
 U = dist.VectorField(coords, name='U', bases=bases)
 U['g'][1] = U0
+F = dist.VectorField(coords, name='F', bases=bases)
 
 # Mask function (airfoil geometry)
 #################################################################
@@ -68,9 +70,9 @@ slices = dist.grid_layout.slices(domain, scales=1)
 phi = dist.Field(name='phi', bases=bases)
 if True:
 
-    from construct_phi import construct_phi
+    from phi_evp import construct_phi
     a0 = 0.0
-    a = [a0, 0.4, (-1.2), 0, 0]
+    a = [a0, 1.0, (0.4)]
 
     rot_exp = np.exp(1j*(rotation / 180 * np.pi))
     a = [ak*scale*rot_exp for ak in a]
@@ -106,10 +108,11 @@ lift_basis = xbasis.derivative_basis(1) # First derivative basis
 lift = lambda A, n: d3.Lift(A, lift_basis, n)
 grad_u = d3.grad(u) + ex*lift(tau_u1,-1) # First-order reduction
 
-problem = d3.IVP([u, p, tau_p, tau_u1, tau_u2], namespace=locals())
+problem = d3.IVP([u, p, F, tau_p, tau_u1, tau_u2], namespace=locals())
 
 problem.add_equation("trace(grad_u) + tau_p = 0")
 problem.add_equation("dt(u) + grad(p) - nu*div(grad_u) + lift(tau_u2, -1) = -u@grad(u) - phi*(u + U)/tau")
+problem.add_equation("F = integ(phi*(u + U)/tau)")
 
 problem.add_equation("(u @ ex)(x='left') = 0")
 problem.add_equation("(u @ ey)(x='left') = 0")
@@ -156,7 +159,10 @@ while solver.proceed:
         max_u_mag = flow.max('u_mag')
         max_us.append(max_u_mag)
         ts.append(solver.sim_time)
-        logger.info('Iteration=%i, Time=%e, dt=%e, max(|u|)=%f' %(solver.iteration, solver.sim_time, timestep, max_u_mag))
+        Fd = (F @ ex).evaluate()['g'].flat[0]
+        Fl = (F @ ey).evaluate()['g'].flat[0]
+        # phi['g'] *= 1.01
+        logger.info('Iteration=%i; Time=%e; dt=%e; max(|u|)=%f; lift=%f; drag=%f; tau=%f' %(solver.iteration, solver.sim_time, timestep, max_u_mag, Fl, Fd, tau))
 
 if (dist.comm.rank == 0):
     plt.plot(ts, max_us)

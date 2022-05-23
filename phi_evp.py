@@ -23,6 +23,8 @@ def construct_phi(a, delta, dist, coords, bases):
     Nx = max(x.shape)
     Ny = max(y.shape)
     ks = [0]
+    while a[-1] == 0.0:
+        a.pop()
     n = len(a)
     for i in range(2, n + 1):
         ks.append((-1)**i * int(i / 2))    
@@ -55,60 +57,106 @@ def construct_phi(a, delta, dist, coords, bases):
     logger.info('Elapsed time {}'.format(datetime.now() - startTime))
     SDF = enclosed * DF
 
-    phi_g = (np.tanh(2*SDF / delta) + 1.0) / 2.0
+    phi_g = (np.tanh(2*SDF / delta))
 
-    return DF, rs
+    return phi_g, rs
 
 
 
-filename = path + '/nsvp_options.cfg'
-config = ConfigParser()
-config.read(str(filename))
+# filename = path + '/nsvp_options.cfg'
+# config = ConfigParser()
+# config.read(str(filename))
 
-# Parameters
-Lx, Ly = 10, 2*np.pi
-Nx, Ny = 256, 128
-dtype = np.float64
-delta = 4.0
+# # Parameters
+# Lx, Ly = 10, 2*np.pi
+# Nx, Ny = 256, 128
+# dtype = np.float64
+# delta = 4.0
 
-scale = 0.5
-rotation = 0.0
+# scale = 0.5
+# rotation = 0.0
 
-# Bases
-coords = d3.CartesianCoordinates('y', 'x')
-dist = d3.Distributor(coords, dtype=dtype)
-ybasis = d3.RealFourier(coords['y'], size=Ny, bounds=(-Ly/2, Ly/2), dealias=3/2)
-xbasis = d3.ChebyshevT(coords['x'], size=Nx, bounds=(-Lx/2, Lx/2), dealias=3/2)
-bases = (ybasis, xbasis)
-ey, ex = coords.unit_vector_fields(dist)
-y, x = ybasis.global_grid(), xbasis.global_grid()
-y_g = y * np.ones_like(x)
-x_g = x * np.ones_like(y)
+# filename = path + '/nsvp_options.cfg'
+# config = ConfigParser()
+# config.read(str(filename))
 
-phi = dist.Field(name='phi', bases=bases)
+# # Parameters
+# Lx, Ly = 10, 2*np.pi
+# Nx, Ny = 256, 128
+# dtype = np.float64
+# delta = 4.0
 
-# Mask function (airfoil geometry)
-#################################################################
-domain = domain.Domain(dist, bases)
-slices = dist.grid_layout.slices(domain, scales=1)
-if True:
+# scale = 0.5
+# rotation = 0.0
 
-    a0 = 0.2
-    # a = [a0, 1.0, 0.4]
-    a = [a0, 1.0, 0.4, 1.4+0.64j, 0.24-1.44j, 0.124+3.8j, 0.1]
+# # Bases
+# coords = d3.CartesianCoordinates('y', 'x')
+# dist = d3.Distributor(coords, dtype=dtype)
+# ybasis = d3.RealFourier(coords['y'], size=Ny, bounds=(-Ly/2, Ly/2), dealias=3/2)
+# xbasis = d3.ChebyshevT(coords['x'], size=Nx, bounds=(-Lx/2, Lx/2), dealias=3/2)
+# bases = (ybasis, xbasis)
+# ey, ex = coords.unit_vector_fields(dist)
+# y, x = ybasis.global_grid(), xbasis.global_grid()
+# y_g = y * np.ones_like(x)
+# x_g = x * np.ones_like(y)
 
-    rot_exp = np.exp(1j*(rotation / 180 * np.pi))
-    a = [ak*scale*rot_exp for ak in a]
+# phi = dist.Field(name='phi', bases=bases)
 
-    phi_g, rs = construct_phi(a, delta, dist, coords, bases)
-    [rx, ry] = zip(*rs)
-    phi['g'] = phi_g
-    dist.comm.Barrier()
-    phi.change_scales(1)
-    phi_g_global = phi.allgather_data('g')
+# # Mask function (airfoil geometry)
+# #################################################################
+# domain = domain.Domain(dist, bases)
+# slices = dist.grid_layout.slices(domain, scales=1)
+# if True:
 
-    if (dist.comm.rank == 0):
-        plt.pcolormesh(x_g, y_g, phi_g_global, cmap='seismic')
-        plt.scatter(rx, ry, color='white')
-        plt.savefig('sdf_evp.png')
-    # plt.show()
+#     a0 = 0.2
+#     # a = [a0, 1.0, 0.4]
+#     a = [a0, 1.0, 0.4, 1.4+0.64j, 0.24-1.44j, 0.124+3.8j, 0.1]
+
+#     rot_exp = np.exp(1j*(rotation / 180 * np.pi))
+#     a = [ak*scale*rot_exp for ak in a]
+
+#     phi_g, rs = construct_phi(a, delta, dist, coords, bases)
+#     [rx, ry] = zip(*rs)
+#     phi['g'] = phi_g
+#     dist.comm.Barrier()
+#     phi.change_scales(1)
+#     phi_g_global = phi.allgather_data('g')
+
+#     if (dist.comm.rank == 0):
+#         plt.pcolormesh(x_g, y_g, phi_g_global, cmap='seismic')
+#         plt.scatter(rx, ry, color='white')
+#         plt.savefig('sdf_evp.png')
+#     # plt.show()
+
+# ey, ex = coords.unit_vector_fields(dist)
+# y, x = ybasis.global_grid(), xbasis.global_grid()
+# y_g = y * np.ones_like(x)
+# x_g = x * np.ones_like(y)
+
+# phi = dist.Field(name='phi', bases=bases)
+
+# # Mask function (airfoil geometry)
+# #################################################################
+# domain = domain.Domain(dist, bases)
+# slices = dist.grid_layout.slices(domain, scales=1)
+# if True:
+
+#     a0 = 0.2
+#     # a = [a0, 1.0, 0.4]
+#     a = [a0, 1.0, 0.4, 1.4+0.64j, 0.24-1.44j, 0.124+3.8j, 0.1]
+
+#     rot_exp = np.exp(1j*(rotation / 180 * np.pi))
+#     a = [ak*scale*rot_exp for ak in a]
+
+#     phi_g, rs = construct_phi(a, delta, dist, coords, bases)
+#     [rx, ry] = zip(*rs)
+#     phi['g'] = phi_g
+#     dist.comm.Barrier()
+#     phi.change_scales(1)
+#     phi_g_global = phi.allgather_data('g')
+
+#     if (dist.comm.rank == 0):
+#         plt.pcolormesh(x_g, y_g, phi_g_global, cmap='seismic')
+#         plt.scatter(rx, ry, color='white')
+#         plt.savefig('sdf_evp.png')
+#     # plt.show()

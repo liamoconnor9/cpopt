@@ -51,7 +51,7 @@ def min_dist(x, y, a):
     w, v = np.linalg.eig(B)
 
     roots = -1j*np.log(w) 
-    rrs = roots[roots.imag < 1e-8]
+    rrs = roots[roots.imag < 1e-10]
     rrs += 2*np.pi*(rrs < 0).astype(int)
 
     # disss = anew.T * np.exp(1j*ks.T*rrs)
