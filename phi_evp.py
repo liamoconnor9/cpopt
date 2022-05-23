@@ -44,12 +44,15 @@ def construct_phi(a, delta, dist, coords, bases):
     # flags = p.contains_points(x_g, y_g)
     enclosed = np.zeros_like(x_g)
     DF = np.zeros_like(x_g)
+
+    from datetime import datetime
+    startTime = datetime.now()
     for ix in range(Nx):
         for iy in range(Ny):
             DF[iy, ix] = min_dist(x_g[iy, ix], y_g[iy, ix], a)
             if (curve.contains_points([(x_g[iy, ix], y_g[iy, ix])])):
                 enclosed[iy, ix] = 1
-    
+    logger.info('Elapsed time {}'.format(datetime.now() - startTime))
     SDF = enclosed * DF
 
     phi_g = (np.tanh(2*SDF / delta) + 1.0) / 2.0
