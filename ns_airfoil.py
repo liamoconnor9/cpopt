@@ -150,29 +150,25 @@ CFL.add_velocity(u)
 flow = d3.GlobalFlowProperty(solver, cadence=10)
 flow.add_property(np.sqrt((u@ex)**2 + (u@ey)**2), name='u_mag')
 
-ts = []
-max_us = []
 dist.comm.Barrier()
 
 while solver.proceed:
     # timestep = CFL.compute_timestep()
     timestep = max_timestep
     solver.step(timestep)
-    if (solver.iteration-1) % 10 == 0:
+    if (solver.iteration-1) % 100 == 0:
         max_u_mag = flow.max('u_mag')
-        max_us.append(max_u_mag)
-        ts.append(solver.sim_time)
         Fd = (F @ ex).evaluate()['g'].flat[0]
         Fl = (F @ ey).evaluate()['g'].flat[0]
         # phi['g'] *= 1.01
         logger.info('Iteration=%i; Time=%e; dt=%e; max(|u|)=%f; lift=%f; drag=%f; tau=%f' %(solver.iteration, solver.sim_time, timestep, max_u_mag, Fl, Fd, tau))
 
-if (dist.comm.rank == 0):
-    plt.plot(ts, max_us)
-    plt.xlabel(r"$t$")
-    plt.ylabel(r"$L-\infty [\vec{u}]$")
-    plt.savefig(run_name + '/max_u.png')
-    plt.show()
+# if (dist.comm.rank == 0):
+#     plt.plot(ts, max_us)
+#     plt.xlabel(r"$t$")
+#     plt.ylabel(r"$L-\infty [\vec{u}]$")
+#     plt.savefig(run_name + '/max_u.png')
+#     plt.show()
 dist.comm.Barrier()
 
 # Gather global data
@@ -195,6 +191,7 @@ if dist.comm.rank == 0:
     # plt.pcolormesh(x.ravel(), y.ravel(), phi_g_global, cmap='viridis', shading='gouraud', rasterized=True)
     pc = plt.pcolormesh(x.ravel(), y.ravel(), mag_u, cmap='seismic', shading='gouraud', rasterized=True)
     plt.colorbar(pc)
+    # plt.quiver(x_g.T[::res, ::res], y_g.T[::res, ::res], x_g.T[::res, ::res], y_g.T[::res, ::res])
     plt.quiver(x_g.T[::res, ::res], y_g.T[::res, ::res], ugx.T[::res, ::res], ugy.T[::res, ::res])
     plt.fill(rx, ry, edgecolor='k', linewidth=1, fill=False)
     plt.gca().set_aspect('equal')
