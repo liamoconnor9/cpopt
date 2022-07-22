@@ -12,7 +12,7 @@ deactivate
 unset PYTHONPATH
 source ~/miniconda3/etc/profile.d/conda.sh
 export PYTHONNOUSERSITE=1
-conda activate dedalus-d3
+conda activate dedalus3
 # support lots of text output to stdio for analysis
 export MPI_UNBUFFERED_STDIO=true
 
@@ -23,4 +23,4 @@ FILE="$(readlink -f "$0")"
 DIR="$(dirname "$(readlink -f "$0")")/"
 CONFIG="nsvp_options.cfg"
 
-mpirun -np 32 python3 ns_airfoil.py
+mpirun -np 1 python3 ns_airfoil.py

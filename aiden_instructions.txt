@@ -1,0 +1,5 @@
+
+
+instructions:
+
+"bash main.sh" runs "ns_airfoil.py" using parameters in nsvp_options.cfg
