@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 from scipy.optimize import minimize
 from natsort import natsorted
 from configparser import ConfigParser
+import pickle
 
 filename = path + '/nsvp_options.cfg'
 config = ConfigParser()
@@ -66,7 +67,7 @@ U = dist.VectorField(coords, name='U', bases=bases)
 U['g'][1] = U0
 F = dist.VectorField(coords, name='F', bases=bases)
 
-# Mask function (airfoil geometry)
+# Mask function (nosecone geometry)
 #################################################################
 domain = domain.Domain(dist, bases)
 slices = dist.grid_layout.slices(domain, scales=1)
@@ -75,7 +76,7 @@ if True:
 
     from phi_reach import construct_phi_diff
     
-    phi_g, rs = construct_phi_diff(None, 0.01, 10, dist, coords, bases)
+    phi_g, rs = construct_phi_diff(run_name, 0.01, 10, dist, coords, bases)
     phi['g'] = phi_g
     dist.comm.Barrier()
     phi.change_scales(1)
@@ -147,14 +148,24 @@ flow.add_property(np.sqrt((u@ex)**2 + (u@ey)**2), name='u_mag')
 
 dist.comm.Barrier()
 
+drag_lst = []
+speed_lst = []
+time_lst = []
+
 while solver.proceed:
     # timestep = CFL.compute_timestep()
     timestep = max_timestep
     solver.step(timestep)
-    if (solver.iteration-1) % 100 == 0:
+
+
+    if (solver.iteration-1) % 1 == 0:
         max_u_mag = flow.max('u_mag')
         Fd = (F @ ex).evaluate()['g'].flat[0]
         Fl = (F @ ey).evaluate()['g'].flat[0]
+        drag_lst.append(Fd)
+        speed_lst.append(max_u_mag)
+        time_lst.append(solver.sim_time)
+
         # phi['g'] *= 1.01
         logger.info('Iteration=%i; Time=%e; dt=%e; max(|u|)=%f; lift=%f; drag=%f; tau=%f' %(solver.iteration, solver.sim_time, timestep, max_u_mag, Fl, Fd, tau))
 
@@ -165,6 +176,14 @@ while solver.proceed:
 #     plt.savefig(run_name + '/max_u.png')
 #     plt.show()
 dist.comm.Barrier()
+
+metrics = {}
+metrics['speed_lst'] = speed_lst
+metrics['drag_lst'] = drag_lst
+metrics['time_lst'] = time_lst
+
+with open(run_name + '/metrics.pick', 'wb') as file:
+    pickle.dump(metrics, file)
 
 # Gather global data
 x = xbasis.global_grid()

@@ -7,7 +7,7 @@ from scipy.optimize import minimize
 from dedalus.core import domain
 
 
-def construct_phi_diff(a, T, Ndt, dist, coords, bases):
+def construct_phi_diff(run_name, T, Ndt, dist, coords, bases):
 
 
     xbasis, ybasis = bases[1], bases[0]
@@ -24,7 +24,28 @@ def construct_phi_diff(a, T, Ndt, dist, coords, bases):
     xscale = 1.0
     yscale = 0.5
 
-    rs = [(0.0, 1.0), (1.0, 1.0), (1.0, -1.0), (0.0, -1.0), (-1.0, 0.0)]
+    rs = [(0.0, 1.0), (1.0, 1.0), (1.0, -1.0), (0.0, -1.0)]
+
+    if ('triangular' in run_name):
+        rs.append((-1.0, 0.0))
+
+    elif ('parabolic' in run_name):
+
+        y = np.linspace(-1, 1, 1000)
+        a = 0.794
+        x = a*(1-y**2)
+        for i in range(1000):
+            rs.append((x[i],y[i]))
+
+    elif ('ellipt' in run_name):
+        logger.error('Not implemented')
+        raise
+
+    else:
+        logger.error('Not implemented')
+        raise
+
+
 
     for ind, (rx, ry) in enumerate(rs):
         rs[ind] = (rx * xscale, ry * yscale)
