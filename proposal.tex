@@ -1,0 +1,314 @@
+% \documentclass[longbibliography,amsmath,amssymb,aps,nofootinbib]{revtex4-2}
+\documentclass[11pt]{article}
+% \usepackage[font=footnotesize]{caption}
+% --------------- NY TIMES FONT -------------------------------
+% \usepackage[T1]{fontenc}
+% \usepackage{fontspec}
+% \setmainfont{Times New Roman}
+
+% \usepackage{newtxmath}% --------------- 1 INCH MARGINS ------------------------------
+\usepackage[margin=1in]{geometry}
+% --------------- LINE SPACING --------------------------------
+\usepackage{setspace}
+\singlespacing
+%\doublespacing
+% --------------- SMALL SECTION TITLES ------------------------
+\usepackage[tiny,compact]{titlesec}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{gensymb}
+\usepackage{enumerate}
+\usepackage{varwidth}
+\usepackage{float}
+\usepackage{nonfloat}
+\usepackage{paralist}
+% \usepackage{multicol}
+% \usepackage{afterpage}
+\usepackage[usenames, dvipsnames]{color}
+% \usepackage[framed,autolinebreaks,useliterate]{mcode} %% MATLAB code
+\usepackage{pythonhighlight}
+% \usepackage[parfill]{parskip}
+% \newcommand{\note}[1]{\noindent \textbf{\textit{\textcolor{Red}{#1}}}}
+
+\newenvironment{tight_enumerate}{
+  \begin{enumerate}
+    % \vspace{-1pc}
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    }{\end{enumerate}}
+  \setlength{\parindent}{0pt}
+  \usepackage[shortlabels]{enumitem}
+    
+    \setlist[enumerate]{nosep}
+    \pagenumbering{gobble}
+
+\newcommand\Ra{\mathrm{Ra}}
+\newcommand\Pran{\mathrm{Pr}}
+\newcommand\Rac{\mathrm{Ra}_{\mathrm{c}}}
+\newcommand\Ek{\mathrm{Ek}}
+\newcommand\Ro{\mathrm{Ro}}
+\newcommand\Nu{\mathrm{Nu}}
+\newcommand\Sc{\mathrm{Sc}}
+
+\newcommand\eps{\varepsilon}
+\renewcommand\L {\mathcal{L}}
+\renewcommand{\citet}[1]{ref.~\cite{#1}}
+\renewcommand{\Citet}[1]{Ref.~\cite{#1}}
+
+\newcommand{\n}{\\ \nonumber \\ }
+\newcommand{\nn}{\nonumber}
+\newcommand{\nnn}{\\ \nonumber \\ \nonumber}
+
+\newcommand\ie{\textit{i.e.},~}
+\newcommand\eg{\textit{e.g.},~}
+\newcommand{\omicron}{o}
+
+\newcommand{\pd}[1]{\partial_{#1}}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\newcommand{\M}[1]{\mathbf{#1}}
+\newcommand{\grad}{\vec{\nabla}}
+\newcommand{\cross}{\vec{\times}}
+\newcommand{\laplacian}{\nabla^2}
+
+\newcommand{\sump}[2]{\sideset{}{'}\sum_{{#1}=0}^{#2}}
+
+\newcommand{\eq}[1]{(\ref{#1})}
+\newcommand{\eqs}[2]{(\ref{#1})~\&~(\ref{#2})}
+\newcommand{\eqss}[2]{(\ref{#1})--(\ref{#2})}
+
+\newcommand{\Eq}[1]{Eq.~(\ref{#1})}
+\newcommand{\Eqs}[2]{Eqs.~(\ref{#1})~\&~(\ref{#2})}
+\newcommand{\Eqss}[2]{Eqs.~(\ref{#1})--(\ref{#2})}
+
+\newcommand{\fig}[1]{Fig.~(\ref{#1})}
+\newcommand{\figs}[2]{Figs.~(\ref{#1})~\&~(\ref{#2})}
+\newcommand{\T}{{\cal T}}
+\newcommand{\Z}{{\cal Z}}
+
+
+\makeatletter
+\let\Hy@backout\@gobble
+\makeatother
+
+\newcommand*{\GtrSim}{\smallrel\gtrsim}
+
+\makeatletter
+\newcommand*{\smallrel}[2][.8]{%
+  \mathrel{\mathpalette{\smallrel@{#1}}{#2}}%
+}
+\newcommand*{\smallrel@}[3]{%
+  % #1: scale factor
+  % #2: math style
+  % #3: symbol
+  \sbox0{$#2\vcenter{}$}%
+  \dimen@=\ht0 %
+  \raise\dimen@\hbox{%
+    \scalebox{#1}{%
+      \raise-\dimen@\hbox{$#2#3\m@th$}%
+    }%
+  }%
+}
+\makeatother
+
+
+\begin{document}
+
+% \title{Pseudospectral Shape Optimization with Volume Penalization and Adjoint Looping}
+
+% \author{Liam O'Connor}
+% \affiliation{%
+% Department of Engineering Sciences and Applied Mathematics, Northwestern University, Evanston, IL 60208 USA}
+
+% \begin{abstract}
+% \end{abstract}
+
+% \maketitle
+% \vspace{-0.8cm}
+% \subsection*{Background and Motivation}
+% Simulation has revolutionized the way we think about design. What was once a guessing game of intuition and experience is rapidly becoming a precise science focused on a single question: what’s the best component geometry in a given physical regime?
+
+% Shape optimization is essentially synthetic natural selection, where we simulate the natural world with computers and identify optimal points within a design space. This idea is best illustrated in Sigmund’s 2017 computational morphogenesis study, where researchers at the Danish Technical Institute used 8,000 CPU cores to optimize airplane wing design. The result was astonishing: optimized wing structures resemble the cartilage distribution in Hornbill bird beaks. This was an enormous finding for biologists, physicists, and engineers because in so many ways it confirms what we already knew: Hornbill birds are the ideal machines for their environment. 
+
+% Though we can never be certain whether or not these geometries are truly idealized, biomimicry is a promising indicator because nature is the best simulation available. In most engineering settings however, this biological resemblance is an inaccessible luxury. This highlights the need to accurately represent physics via simulation alone. The only remedy is to combine optimization with the most advanced simulation techniques available. 
+
+% \subsection*{Proposal}
+I propose investigating airfoil shape optimization using a novel combination of recently developed techniques, including pseudospectral (PS), volume penalization, and adjoint looping optimization methods.
+I will perform simulations using the \texttt{Dedalus} PS python framework which I have used to study Rayleigh-B\'enard convection and magnetohydrodynamics throughout the last two years. 
+Volume penalization for external flow simulations has already been implemented with \texttt{Dedalus} [Hester 2020] and there exists a substantial body of airfoil shape optimization research for comparison. 
+I am currently developing the necessary adjoint looping optimization infrastructure which uses \texttt{Dedalus} to solve the adjoint system, thereby allowing us to approximate gradients for arbitrary metrics.
+The proposed technique offers key advantages when compared to the conventional approach which relies on finite volume simulations and finite difference gradient-based optimization. 
+\begin{enumerate}
+  \item High-fidelity physics simulations: PS methods are well-suited for simulating turbulent fluid flow. Finite volume methods are subject to small grid-scale numerical errors which can excite nominally stable modes in turbulent shear flows, thereby triggering artificial instabilities [Lecoanet 2015]. In the context of shape optimization, these instabilities could propagate tremendous differences in the resulting optimized geometries.
+  \item Modular flow regimes: the \texttt{Dedalus} pseudospectral python framework interprets equations symbolically, allowing for rapid development and future shape optimization research in compressible, high-Mach number, multiphase, and combustive flow regimes using the same codes.
+  \item Efficient gradient-based optimization: adjoint looping allows us to approximate gradients rapidly and accurately in high dimensional parameter spaces [Lecoanet 2015]. The conventional finite difference method is costly (and sometimes inaccurate) because it involves a large number of simulations.
+  \item Flexible domain representation: the volume penalty method allows us to model external flows around an arbitrary spatial mask function, thereby eliminating the need to continuously remesh as the design is updated and ultimately reconstruct a palatable design from the optimized mesh.
+  % \item Fourier bases: we can interpret periodic cartesian airfoil simulation data as axisymmetrical flows around rotationally periodic geometries such as propellors and turbines. 
+  % This is particularly valuable in the context of compressible, multiphase, high-Mach number, and combustive flows where propellors and turbines are ubiquitous.
+\end{enumerate}
+
+Airfoils offer an ideal context for investigation because they operate in a wide range of flow regimes. Airfoil geometries are generally smooth, allowing us to represent them with truncated Fourier series. Smooth design representation has tangible benefits from an engineering perspective and it will allow us to analyze optimizated geometries from a scientific perspective. For instance, we will vary the system's Reynolds number and compare the optimized Fourier coefficient profiles.
+
+% Computing integrals and derivatives with \texttt{Dedalus} is trivial because each field is represented by a set of spectral coefficients.
+
+\textbf{Methods:} The complicated domains necessary for shape optimization are difficult to represent via spectral basis functions. 
+% Domain transformation is a viable and demonstrated technique, but it lacks the geometric versatility afforded by splines and meshes. 
+Volume penalization is the robust solution, where a time-invariant mask function $\Phi$ is included in the relevant PDE to represent the immersed solid. We combine this technique with the adjoint looping method, which has been used to optimize initial conditions in similar 2D incompressible flows [Kerswell 2014].
+% Given an airfoil curve $\Gamma \equiv \{(x,y)\,|\,x+iy=\sum_{k=1}^{n} a_k e^{ik\theta},\, 0\leq \theta<2\pi,\,a_k \in \mathbb{C},\}$ enclosing a region $\mathcal{R}$, we study 2D incompressible flow governed by
+\begin{align}
+  \partial_t \vec{u} + \vec{u}\cdot\grad\vec{u} + \frac{1}{\rho}\grad p &= \nu\laplacian\vec{u} - \frac{1}{\tau}\Phi(\vec{x};\vec{a})(\vec{u} - \vec{U}) \qquad \text{and} \qquad \grad \cdot \vec{u} = 0 \label{eq:ns}
+\end{align}
+where $\vec{U} = \vec{\hat{x}}U$ is the airfoil's velocity frame; $\tau \ll 1$ is the damping timescale; and $\vec{u} = u\vec{\hat{x}} + v\vec{\hat{y}}$, $p$, $\rho$, and $\nu$ are the fluid's velocity, pressure, density, and viscosity respectively.
+The aerodynamic force acting on the immersed interface is given by $\vec{F} = F_D\hat{\vec{x}} + F_L\hat{\vec{y}} = \frac{\rho}{\tau}\langle \Phi(\vec{x};\vec{a}) (\vec{u} - \vec{U}) \rangle$
+where $\langle \cdot \rangle$ denotes the spatial integral over the domain $-L_x/2<x<L_x/2$, $-L_y/2<y<L_y/2$.
+
+Our optimization problem maximizes the mean lift to drag ratio $\overline{{F}_L / F_D} \equiv T^{-1}\int_0^T F_L / F_D\,dt$ where $T \gg U/L_x$.
+We use $\Gamma$'s Fourier coefficients $\vec{a}$ as optimization parameters. The adjoint looping method involves differentiating a Lagrangian $\mathcal{L}$ to derive the adjoint system, which we solve backwards in time $t:T\to0$, thereby allowing us to approximate $\grad_{\vec{a}}\mathcal{L}$.
+
+\indent The mask function is a smooth indicator $\Phi(\vec{x}; \vec{a}) = \frac{1}{2}\big[ 1 - \tanh\big(d^{-1}_r\mathrm{SDF}(\vec{x}; \vec{a}, \theta)\big) \big]$ 
+% \approx \begin{cases}
+%     1 \quad &\vec{x} \in \mathcal{R} \\
+%     0 \quad &\vec{x} \not\in \mathcal{R}
+%   \end{cases} \label{eq:phi}
+% \end{align}
+where $d_r$ is proportional to the minimum resolvable length scale.
+The signed distance function $\text{SDF}(\vec{x}; \vec{a},\theta)$ can be treated analytically in terms of $\vec{a}$ but we must perform an eigenvalue decomposition at each spectral grid point to find the direction $\theta$ which minimizes the distance to $\Gamma$ [Boyd 2006].
+A small number $(n \sim 10)$ of complex Fourier coefficients describe a large set of potential airfoil geometries. 
+
+% We constrain $\Gamma$ to lie within an ellipse of allowable designs $\mathcal{G} = \{ (x,y)\,:\,(x/\tilde{x})^2+(y/\tilde{y})^2 < 1\}$.
+
+We employ Fourier and Chebyshev series spanning $-L_x/2<x<L_x/2$ and $-L_y/2<y<L_y$ respectively, along with stress-free impenetrable boundary conditions at $y = \pm L_y/2$.
+This formulation is nominally periodic in $x$, but when this is undesirable we implement spatial dampening to encourage $\vec{u} \to \vec{0}$ in the vicinity of $x = \pm L_x/2$.
+The source term containing $\Phi$ in \ref{eq:ns} acts as a no-slip boundary condition proxy on $\Gamma$.
+\begin{align*}
+  &\mathcal{L}(\vec{u},p,\vec{a}, \vec{\mu}, \pi) = \int_0^T \Big\langle F_L(\vec{u}; \vec{a}) \Big\rangle dt - \Lambda \Big[ \int_0^T \Big\langle F_D(\vec{u}; \vec{a}) \Big\rangle dt - \overline{F_D} \Big] + ... \\
+  &\int_0^T \big\langle \vec{\mu}(\vec{x}, t) \cdot \big(\partial_t \vec{u} + \vec{u}\cdot\grad\vec{u} + \frac{1}{\rho}\grad p - \nu\laplacian\vec{u} + \frac{1}{\tau}\Phi(\vec{x}; \vec{a})(\vec{u} - \vec{U})\big) \big\rangle dt + \int_0^T \big\langle \pi(\vec{x},t)\grad\cdot\vec{u} \big\rangle dt 
+\end{align*}
+where the first two terms, which we will call $\mathcal{J}$, is the scalar quantity to be maximized and the remaining terms impose the Navier-Stokes constraint. 
+We aim to compute the complex Fourier coefficients $\vec{a}$ which maximize lift $F_L$ while keeping the drag $F_D$ in the approximate vicinity of some quantity $\overline{F_D}$.
+The function $\Lambda$ is chosen to ensure that $\int_0^T \langle F_D \rangle dt \sim \overline{F_D}$ to a desired specificity. \newline
+
+
+From the corresponding Euler-Lagrange equations we derive the adjoint system
+\begin{align}
+  \grad \cdot \vec{\mu} &= 0 \\
+  \partial_t\vec{\mu} + \vec{u}\cdot\grad\vec{\mu} - \vec{\mu}\cdot \big( \grad \vec{u} \big)^T + \grad \pi &= -\nu\laplacian\vec{\mu} + \frac{1}{\tau}\Phi\,\vec{\mu} + \frac{\delta \mathcal{J}}{\delta \vec{u}} \label{eq:adj_eq}
+  % \partial_t\vec{\mu} + \vec{u}\cdot\grad\vec{\mu} - \vec{\mu}\cdot \big( \grad \vec{u} \big)^T + \grad \pi &= -\nu\laplacian\vec{\mu} + \frac{1}{\tau}\Phi\,\vec{\mu} + \frac{\Phi}{T} \frac{\langle (u-U) \Phi \rangle \vec{\hat{y}} - \langle v\,\Phi \rangle \vec{\hat{x}}}{\langle (u-U) \Phi \rangle^2} \label{eq:adj_eq}
+\end{align}
+which is evolved backward in time $t:T\to 0$. \\ \newline
+% We update the airfoil geometry iteratively by computing 
+% \begin{align}
+%   \grad_{\vec{a}}{\mathcal{L}} &= \int_0^T \big\langle \frac{1}{\tau}\grad_{\vec{a}}\Phi \,(\vec{\mu} \cdot (\vec{u}-\vec{U})) \big\rangle dt + \frac{1}{T} \int_0^T \frac{\langle (u-U) \Phi \rangle \langle v \grad_{\vec{a}}\Phi  \rangle - \langle v \, \Phi \rangle\langle (u - U)\grad_{\vec{a}}\Phi \rangle }{\langle (u-U)\Phi \rangle^2}  dt + \lambda\Big\langle \grad_{\vec{a}}\Phi(1 - \delta_{\vec{x}\in\mathcal{G}}) \Big\rangle \label{eq:lagrangian}
+% \end{align}
+
+Given the airfoil curve coefficients $\vec{a}$, we compute the mask function's gradient $\nabla_{\vec{a}} \Phi$ numerically via finite differences. This calculation can be performed independently (embarrassingly-parallelizable) at each grid point by solving an eigenvalue problem of low rank.
+
+% https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
+
+The optimization loop is then performed as follows:
+\begin{tight_enumerate}
+  \item At iteration $k$, initialize with the previous iteration's end state $\vec{u}^{k-1}(T)$. 
+  \item Solve \ref{eq:ns} until a statistically-steady state is achieved, at which point $(t=0)$ we record the solution until $t=T$.
+  \item Initialize the adjoint system (\ref{eq:adj_eq}) at $t=T$ with $\vec{\mu}(\vec{x},T) = \vec{0}$.
+  \item Solve \ref{eq:adj_eq} backwards $(t:0\to T)$
+  \item Simultaneously solve for $\grad_{\vec{a}}{\mathcal{L}}$.
+  \item Evolve the Fourier coefficients by a magnitude of $\varepsilon$: $\vec{a}^{k+1} = \vec{a}^k+\varepsilon \grad_{\vec{a}}\mathcal{L}$.
+  \item Repeat until $|\mathcal{J}^{k+1} - \mathcal{J}^{k}|$ is less than some tolerance.
+\end{tight_enumerate}
+
+
+% Once this technique is demonstrated, we will leverage the flexibility of \texttt{Dedalus} to perform shape optimization in compressible flow regimes. My codes will be adaptive, such that any mask function can be imposed on an arbitrary PDE using volume penalization. Complemented by the adjoint looping optimization toolkit, which is currently in development as a component of NASA Goddard Space Flight Center Grant 80NSSC20K1280, \texttt{Dedalus} will be made available as an open-source engine for shape optimization.
+
+% \textbf{Broader Impacts:} The proposed investigation will initiate progress on multiple fronts. Pseudospectral shape optimization could revolutionize the way engineers optimize designs by eliminating meshing while enhancing simulation fidelity. 
+% % Airfoil geometries optimized in 2D periodic flows can be used to inform propellor/turbine design at low computational expense. 
+% This tangible demonstration will serve as bridge between the \texttt{Dedalus} project and the aerospace/mechanical engineering community. 
+% % As applied mathematicians, it is our obligation to harness recent advances in our field to improve the modern world for everyone.
+% Finally, this project will be a foundational component of the simulation research that I will personally showcase at the local public highschool, thereby providing inspiration and opportunities for mentorship. 
+
+
+
+
+% The adjoint looping optimization procedure is illustrated by Kerswell 2014 in Figure \ref{loop}. 
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=3in]{loop1.png}
+%   \caption{ }
+%   \label{loop}
+% \end{figure}
+% This involves calculating the variations of $\mathcal{L}$ with respect to $\{\vec{u},p,\vec{a}\}$, yielding the adjoint system for $\{\vec{\mu}, \pi\}$. 
+% $\grad_{\vec{x}}\Phi$ is computed with \texttt{Dedalus} and $\grad_{\vec{a}}\Phi$ can be obtained semi-analytically from \ref{eq:phi} and \ref{eq:SDF}.
+
+% The adjoint gradient method requires that we spatially discretize our PDE.
+% \texttt{Dedalus} does this automatically, representing \ref{eq:ns} in standard matrix form
+% \begin{equation}
+%   \vec{h}(\vec{v}, \vec{\dot{v}}, \vec{a}, t) \equiv \vec{\dot{v}} + L(\vec{a})\cdot\vec{v} - \mathcal{F}(\vec{v}, t) = \vec{0} \label{eq:MLF}
+% \end{equation} 
+% where $L$ is the linear operator, $\mathcal{F}(\vec{v}, t)$ the nonlinear term, and $\vec{v}(t)$ the solution $\vec{u}$ in spectral/coefficient space.
+% We define the Lagrangian
+% \begin{equation}
+%   \mathcal{L} \equiv \int_0^T F_L + \vec{\lambda}(t)\cdot\vec{h}(\vec{v}, \vec{\dot{v}}, \vec{a}, t)\,dt + \vec{\mu}\cdot\vec{g}(\vec{v}(0),\vec{a})
+% \end{equation}
+% where $\vec{\lambda}(t)$ and $\vec{\mu}$ are Lagrangian multiplier vectors or adjoint variables. By construction, $d_p\mathcal{L} = d_p\overline{F_L}$. A bit of calculus, integration by parts, and simplification yields
+% \begin{align}
+%   d_p\mathcal{L} &= \int_0^T \underline{\big(\partial_{\vec{v}} F_L + \vec{\lambda} \cdot (\partial_{\vec{v}}\vec{h} - d_t\partial_{\vec{\dot{v}}}\vec{h}) - \vec{\dot{\lambda}}\cdot\partial_{\vec{\dot{v}}}\vec{h}\big)}d_{\vec{a}}\vec{v} + \grad_{\vec{a}} F_L + \vec{\lambda}\cdot\grad_{\vec{a}}\vec{h}\,dt \nonumber\\
+%   &\qquad + \big[\vec{\lambda}\cdot\partial_{\vec{\dot{v}}}\vec{h} \, d_{\vec{a}}\vec{v}\big]\big|_{t=T} + d_{\vec{a}}(\vec{v}(0))\big[ \vec{\mu}\cdot\partial_{\vec{v}(0)}\vec{g} - \vec{\lambda}\partial_{\vec{\dot{v}}}\vec{h}\big]\big|_{t=0} + \vec{\mu}\cdot\grad_{\vec{a}}\vec{g}\,\,. \label{eq:dpL}
+% \end{align}
+% Setting the underlined terms in the integrand to 0 eliminates the need to calculate $d_{\vec{a}}\vec{v}$ for $t > 0$, yielding the adjoint system
+% \begin{equation}
+%   \partial_{\vec{v}}F_L + \vec{\lambda}(t)\cdot (\partial_{\vec{v}}\vec{h} - d_t\partial_{\vec{\dot{v}}}\vec{h}) - \vec{\dot{\lambda}}\cdot\partial_{\vec{\dot{v}}}\vec{h} = 0 \label{eq:adj}
+% \end{equation}
+% which we complement with the adjoint initial condition $\vec{\lambda}(T) = \vec{0}$ and constraint $\vec{\mu}\cdot\partial_{\vec{v}(0)}\vec{g} - \vec{\lambda}\partial_{\vec{\dot{v}}}\vec{h} = 0$. In concert, these equations are then solved numerically to approximate $d_{\vec{a}}F_L$ as follows:
+% \begin{tight_enumerate}
+%   \item Integrate $\vec{v}(t)$ subject to \ref{eq:MLF} from $t=0$ to $t=T$
+%   \item Integrate $\vec{\lambda}(t)$ subject to \ref{eq:adj} from $t=T$ to $t=0$
+%   \item Solve what remains of \ref{eq:dpL} after applying the adjoint initial condition and constraint:
+%   \begin{align}
+%     d_{\vec{a}}F_L &= \int_0^T \grad_{\vec{a}} F_L + \vec{\lambda}\cdot\grad_{\vec{a}}\vec{h}\,dt + d_{\vec{a}}(\vec{v}(0))\big[ \vec{\mu}\cdot\partial_{\vec{v}(0)}\vec{g} - \vec{\lambda}\partial_{\vec{\dot{v}}}\vec{h}\big]\big|_{t=0} + \vec{\lambda}\frac{\partial_{\vec{\dot{v}}}\vec{h}}{\partial_{\vec{v}(0)}\vec{g}}\cdot\grad_{\vec{a}}\vec{g}\,\,. \label{eq:dpFL}
+%   \end{align}
+% \end{tight_enumerate}
+% With $d_{\vec{a}}F_L$ known, we adjust the control points while maintaining $\vec{a}\in\mathcal{G}$. This process is repeated until the optimal geometry $\vec{a}_{\mathrm{opt}}$ is identified. 
+% % \begin{equation}
+% %   \begin{cases}
+% %     \hat{\vec{a}} = \mathrm{arg} \max \; F_L(\vec{V}, \Gamma) \\
+% %     F_D(\vec{V}, \Gamma) = \overline{F_D}'\\
+% %     \mathcal{S}(\Gamma, \vec{a}) = \vec{0} \\
+% %     \vec{a} \in \mathcal{G}
+% %   \end{cases}
+% % \end{equation}
+% % where $\vec{V}$ is the flow state obtained by solving \ref{eq:ns} and $\overline{F_D}'$ is the prescribed drag.
+
+% % \footnotetext[1]{Richardson extrapolation can be used to combat Gibb's phenomenon, increasing the approximation's order of convergence with respect to resolution.}
+
+% % Given a 2D cartesian domain $\mathcal{D}$ with position vector $\vec{r} = x\hat{i} + y\hat{j}$, we initialize the shape optimization algorithm with an elliptical curve $\Gamma = \{\vec{r}(s):0\leq s<S\}$ enclosing a region $R$ with perimeter $S$ parameterized by the arc length $s$. We constrain the lift and enclosed area
+
+% % Updating design geometries in \texttt{Dedalus} would be simple and inexpensive, as it would only involve modifying the boundary’s source term and not reconstructing the domain itself. Similar external flow simulations have already been performed successfully with \texttt{Dedalus} by representing airfoils as simple ellipses using volume penalization. 
+
+% % ********** NEW PARAGRAPH? **********
+% % % Discuss Hester (and others)’s fluid/solid boundary & volume penalization research:
+
+% % Using richardson extrapolation to increase convergence order
+% % Interior damping (mask function). Does this relate to Gibbs?
+% % Generalizing the mask function for use with splines
+
+% % ********** NEW PARAGRAPH **********
+% % Shape optimization:
+% % Objectives: Minimize drag, maximize lift
+% % Constraints: volume, cross-section area, minimum thickness
+% % Control parameters: splined mask function’s control points
+% % Methods: Adjoint operators…. *need more info here*
+
+% % ********** NEW PARAGRAPH **********
+% % Detailed research plan with steps:
+% % Generalize Hester’s work: setup 2D incompressible simulations with parametric spline airfoil design
+% % Explicitly state constraints and objective function
+% % Apply optimization techniques to \texttt{Dedalus} simulations
+% % Analyze optimized designs and associated simulations
+% % Perform analogous shape optimization study with Ansys or related commercial engineering software suite
+% % Compare optimized geometries and cross-simulate for further verification
+
+
+
+% % \bibliography{project.bib}
+
+\end{document}
