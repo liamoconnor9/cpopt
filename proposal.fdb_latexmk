@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1669159161 "/home/liamo/vpopt/proposal.tex" "/home/liamo/vpopt/proposal.pdf" "proposal" 1669159162
+["pdflatex"] 1669515854 "/home/liamo/vpopt/proposal.tex" "/home/liamo/vpopt/proposal.pdf" "proposal" 1669515855
   "/etc/texmf/web2c/texmf.cnf" 1641840145 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/liamo/vpopt/proposal.aux" 1669159162 84 c7cc0d3187fd68b77162cab87f05ecf4 ""
-  "/home/liamo/vpopt/proposal.tex" 1669159161 22642 292d9a7dff506a4d4587e3493d3c63bf ""
+  "/home/liamo/vpopt/proposal.aux" 1669515855 82 97f449734f894b77aed6211644f7439e ""
+  "/home/liamo/vpopt/proposal.tex" 1669515854 25256 8662b1ed1e5927f2fedb94d7304a3f22 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy8.tfm" 1246382020 1120 200be8b775682cdf80acad4be5ef57e4 ""
@@ -37,7 +37,6 @@
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1248133631 32626 4f5c1b83753b1dd3a97d1b399a005b4b ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb" 1248133631 31099 c85edf1dd5b9e826d67c9c7293b6786c ""
-  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb" 1248133631 35479 892d27442ef9ef29ce1ee57aa0e8a665 ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty" 1583617216 6501 4011d89d9621e0b0901138815ba5ff29 ""
   "/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty" 1572645307 1057 525c2192b5febbd8c1f662c9468335bb ""
@@ -89,11 +88,11 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1613593815 38841 799d1dd9682a55ce442e10c99777ecc1 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1641840178 5160710 ecf427ae8fa19139d8691f526e47bb9b ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1641840224 2568810 3b2af424cc690de5ec914d096a71e189 ""
-  "proposal.aux" 1669159162 84 c7cc0d3187fd68b77162cab87f05ecf4 "pdflatex"
-  "proposal.tex" 1669159161 22642 292d9a7dff506a4d4587e3493d3c63bf ""
+  "proposal.aux" 1669515855 82 97f449734f894b77aed6211644f7439e "pdflatex"
+  "proposal.tex" 1669515854 25256 8662b1ed1e5927f2fedb94d7304a3f22 ""
   (generated)
-  "/home/liamo/vpopt/proposal.log"
-  "proposal.log"
   "/home/liamo/vpopt/proposal.pdf"
-  "proposal.aux"
   "proposal.pdf"
+  "proposal.log"
+  "proposal.aux"
+  "/home/liamo/vpopt/proposal.log"

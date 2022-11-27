@@ -157,65 +157,86 @@ Airfoils offer an ideal context for investigation because they operate in a wide
 Volume penalization is the robust solution, where a time-invariant mask function $\Phi$ is included in the relevant PDE to represent the immersed solid. We combine this technique with the adjoint looping method, which has been used to optimize initial conditions in similar 2D incompressible flows [Kerswell 2014].
 % Given an airfoil curve $\Gamma \equiv \{(x,y)\,|\,x+iy=\sum_{k=1}^{n} a_k e^{ik\theta},\, 0\leq \theta<2\pi,\,a_k \in \mathbb{C},\}$ enclosing a region $\mathcal{R}$, we study 2D incompressible flow governed by
 \begin{align}
-  \partial_t \vec{u} + \vec{u}\cdot\grad\vec{u} + \frac{1}{\rho}\grad p &= \nu\laplacian\vec{u} - \frac{1}{\tau}\Phi(\vec{x};\vec{a})(\vec{u} - \vec{U}) \qquad \text{and} \qquad \grad \cdot \vec{u} = 0 \label{eq:ns}
+  \partial_t \vec{u} + \vec{u}\cdot\grad\vec{u} + \frac{1}{\rho}\grad p &= \nu\laplacian\vec{u} - \frac{1}{\tau}\Phi(\vec{x})(\vec{u} - \vec{U}) \qquad \text{and} \qquad \grad \cdot \vec{u} = 0 \label{eq:ns}
 \end{align}
 where $\vec{U} = \vec{\hat{x}}U$ is the airfoil's velocity frame; $\tau \ll 1$ is the damping timescale; and $\vec{u} = u\vec{\hat{x}} + v\vec{\hat{y}}$, $p$, $\rho$, and $\nu$ are the fluid's velocity, pressure, density, and viscosity respectively.
-The aerodynamic force acting on the immersed interface is given by $\vec{F} = F_D\hat{\vec{x}} + F_L\hat{\vec{y}} = \frac{\rho}{\tau}\langle \Phi(\vec{x};\vec{a}) (\vec{u} - \vec{U}) \rangle$
+The aerodynamic force acting on the immersed interface is given by
+\begin{equation}
+  \vec{F} = F_D\hat{\vec{x}} + F_L\hat{\vec{y}} = \frac{\rho}{\tau}\langle \Phi(\vec{x}) (\vec{u} - \vec{U}) \rangle
+\end{equation}
 where $\langle \cdot \rangle$ denotes the spatial integral over the domain $-L_x/2<x<L_x/2$, $-L_y/2<y<L_y/2$.
 
-Our optimization problem maximizes the mean lift to drag ratio $\overline{{F}_L / F_D} \equiv T^{-1}\int_0^T F_L / F_D\,dt$ where $T \gg U/L_x$.
-We use $\Gamma$'s Fourier coefficients $\vec{a}$ as optimization parameters. The adjoint looping method involves differentiating a Lagrangian $\mathcal{L}$ to derive the adjoint system, which we solve backwards in time $t:T\to0$, thereby allowing us to approximate $\grad_{\vec{a}}\mathcal{L}$.
-
-\indent The mask function is a smooth indicator $\Phi(\vec{x}; \vec{a}) = \frac{1}{2}\big[ 1 - \tanh\big(d^{-1}_r\mathrm{SDF}(\vec{x}; \vec{a}, \theta)\big) \big]$ 
-% \approx \begin{cases}
-%     1 \quad &\vec{x} \in \mathcal{R} \\
-%     0 \quad &\vec{x} \not\in \mathcal{R}
-%   \end{cases} \label{eq:phi}
-% \end{align}
-where $d_r$ is proportional to the minimum resolvable length scale.
-The signed distance function $\text{SDF}(\vec{x}; \vec{a},\theta)$ can be treated analytically in terms of $\vec{a}$ but we must perform an eigenvalue decomposition at each spectral grid point to find the direction $\theta$ which minimizes the distance to $\Gamma$ [Boyd 2006].
-A small number $(n \sim 10)$ of complex Fourier coefficients describe a large set of potential airfoil geometries. 
-
+% We use $\Gamma$'s Fourier coefficients $\vec{a}$ as optimization parameters. The adjoint looping method involves differentiating a Lagrangian $\mathcal{L}$ to derive the adjoint system, which we solve backwards in time $t:T\to0$, thereby allowing us to approximate $\grad_{\vec{a}}\mathcal{L}$.
+\newpage
+\indent The mask function is a smooth indicator
+\begin{equation}
+  \Phi(\vec{x}) = \frac{1}{2}\big[ 1 - \tanh\big(d^{-1}_r\mathrm{SDF}(\vec{x})\big) \big]
+\end{equation} 
+where $d_r$ is proportional to the minimum resolvable length scale. The signed distance function $\mathrm{SDF}(\vec{x})$ is bijective with a closed airfoil contour $\{ \vec{x}\, : \, \mathrm{SDF}(\vec{x}) = 0 \}$ \\
+  
+Our optimization problem maximizes the time-integrated lift $\int_0^T F_L(\vec{u};\Phi(\vec{x})) dt$ while penalizing the drag's time-integrated deviation $\frac{\alpha}{2}\big[\int_0^T F_D(\vec{u};\Phi(\vec{x})) - \overline{F_D} dt \big]^2$ from some prescribed drag target $\overline{F_D}$ where $T \gg U/L_x$.
+  
 % We constrain $\Gamma$ to lie within an ellipse of allowable designs $\mathcal{G} = \{ (x,y)\,:\,(x/\tilde{x})^2+(y/\tilde{y})^2 < 1\}$.
 
-We employ Fourier and Chebyshev series spanning $-L_x/2<x<L_x/2$ and $-L_y/2<y<L_y$ respectively, along with stress-free impenetrable boundary conditions at $y = \pm L_y/2$.
-This formulation is nominally periodic in $x$, but when this is undesirable we implement spatial dampening to encourage $\vec{u} \to \vec{0}$ in the vicinity of $x = \pm L_x/2$.
-The source term containing $\Phi$ in \ref{eq:ns} acts as a no-slip boundary condition proxy on $\Gamma$.
+% We employ Fourier and Chebyshev series spanning $-L_x/2<x<L_x/2$ and $-L_y/2<y<L_y$ respectively, along with stress-free impenetrable boundary conditions at $y = \pm L_y/2$.
+% This formulation is nominally periodic in $x$, but when this is undesirable we implement spatial dampening to encourage $\vec{u} \to \vec{0}$ in the vicinity of $x = \pm L_x/2$.
+% The source term containing $\Phi$ in \ref{eq:ns} acts as a no-slip boundary condition proxy on (and inside) the airfoil contour.
 \begin{align*}
-  &\mathcal{L}(\vec{u},p,\vec{a}, \vec{\mu}, \pi) = \int_0^T \Big\langle F_L(\vec{u}; \vec{a}) \Big\rangle dt - \Lambda \Big[ \int_0^T \Big\langle F_D(\vec{u}; \vec{a}) \Big\rangle dt - \overline{F_D} \Big] + ... \\
-  &\int_0^T \big\langle \vec{\mu}(\vec{x}, t) \cdot \big(\partial_t \vec{u} + \vec{u}\cdot\grad\vec{u} + \frac{1}{\rho}\grad p - \nu\laplacian\vec{u} + \frac{1}{\tau}\Phi(\vec{x}; \vec{a})(\vec{u} - \vec{U})\big) \big\rangle dt + \int_0^T \big\langle \pi(\vec{x},t)\grad\cdot\vec{u} \big\rangle dt 
+  &\mathcal{L}(\vec{u},p,\Phi, \vec{\mu}, \pi) = \textcolor{blue}{\frac{1}{\tau} \int_0^T\langle \Phi(\vec{x}) (\vec{u} - \vec{U})\cdot\vec{\hat{y}} \rangle - \frac{\alpha}{2}\big\langle \Phi(\vec{x}) (\vec{u} - \vec{U})\cdot\vec{\hat{x}} - \overline{F_D} \big\rangle^2 dt} + ... \\
+  &\int_0^T \big\langle \vec{\mu}(\vec{x}, t) \cdot \big(\partial_t \vec{u} + \vec{u}\cdot\grad\vec{u} + \frac{1}{\rho}\grad p - \nu\laplacian\vec{u} + \frac{1}{\tau}\Phi(\vec{x})(\vec{u} - \vec{U})\big) \big\rangle dt + \int_0^T \big\langle \pi(\vec{x},t)\grad\cdot\vec{u} \big\rangle dt 
+  \intertext{where}
+  \textcolor{blue}{\mathcal{J}} &\textcolor{blue}{\equiv \frac{1}{\tau} \int_0^T\langle \Phi(\vec{x}) (\vec{u} - \vec{U})\cdot\vec{\hat{y}} \rangle - \frac{\alpha}{2}\big\langle \Phi(\vec{x}) (\vec{u} - \vec{U})\cdot\vec{\hat{x}} - \overline{F_D} \big\rangle^2 dt} \\
+  &\textcolor{blue}{= \frac{1}{\rho}\int_0^T F_L(\vec{u};\Phi(\vec{x})) - \frac{\alpha}{2}\Big[ F_D(\vec{u};\Phi(\vec{x})) - \overline{F_D} \Big]^2\, dt }\\
 \end{align*}
-where the first two terms, which we will call $\mathcal{J}$, is the scalar quantity to be maximized and the remaining terms impose the Navier-Stokes constraint. 
-We aim to compute the complex Fourier coefficients $\vec{a}$ which maximize lift $F_L$ while keeping the drag $F_D$ in the approximate vicinity of some quantity $\overline{F_D}$.
-The function $\Lambda$ is chosen to ensure that $\int_0^T \langle F_D \rangle dt \sim \overline{F_D}$ to a desired specificity. \newline
+
+is the scalar quantity to be maximized and the remaining terms impose the Navier-Stokes constraint. 
+We aim to compute the function $\mathrm{SDF}(\vec{x})$ which maximizes $\mathcal{J}$.
+The coefficient $\alpha$ is left arbitrary. \newline
 
 
-From the corresponding Euler-Lagrange equations we derive the adjoint system
-\begin{align}
-  \grad \cdot \vec{\mu} &= 0 \\
-  \partial_t\vec{\mu} + \vec{u}\cdot\grad\vec{\mu} - \vec{\mu}\cdot \big( \grad \vec{u} \big)^T + \grad \pi &= -\nu\laplacian\vec{\mu} + \frac{1}{\tau}\Phi\,\vec{\mu} + \frac{\delta \mathcal{J}}{\delta \vec{u}} \label{eq:adj_eq}
-  % \partial_t\vec{\mu} + \vec{u}\cdot\grad\vec{\mu} - \vec{\mu}\cdot \big( \grad \vec{u} \big)^T + \grad \pi &= -\nu\laplacian\vec{\mu} + \frac{1}{\tau}\Phi\,\vec{\mu} + \frac{\Phi}{T} \frac{\langle (u-U) \Phi \rangle \vec{\hat{y}} - \langle v\,\Phi \rangle \vec{\hat{x}}}{\langle (u-U) \Phi \rangle^2} \label{eq:adj_eq}
-\end{align}
-which is evolved backward in time $t:T\to 0$. \\ \newline
+The adjoint system
+\begin{align*}
+  \frac{\delta\mathcal{L}}{\delta p(\vec{x}, t)} &= 0 = -\grad \cdot \vec{\mu} \\
+  \frac{\delta\mathcal{L}}{\delta \vec{u}(\vec{x}, t)} &= \vec{0} = -\partial_t\vec{\mu} - \vec{u}\cdot\grad\vec{\mu} + \vec{\mu}\cdot \big( \grad \vec{u} \big)^T - \grad \pi - \nu\laplacian\vec{\mu} + \frac{1}{\tau}\Phi\,\vec{\mu} + \color{blue}{\frac{\delta \mathcal{J}}{\delta \vec{u}}} \\
+  \Longrightarrow \vec{0} &= \partial_t\vec{\mu} + \vec{u}\cdot\grad\vec{\mu} - \vec{\mu}\cdot \big( \grad \vec{u} \big)^T + \grad \pi + \nu\laplacian\vec{\mu} - \frac{1}{\tau}\Phi\,\vec{\mu} - \color{blue}{\frac{1}{\tau} \Phi(\vec{x}) \Big[ \hat{\vec{y}} - \alpha(F_D - \overline{F_D}) \hat{\vec{x}} \Big] } \\
+  \Longrightarrow \vec{0} &= \partial_t\vec{\mu} + \vec{u}\cdot\grad\vec{\mu} - \vec{\mu}\cdot \big( \grad \vec{u} \big)^T + \grad \pi + \nu\laplacian\vec{\mu} - \color{teal}{\frac{1}{\tau} \Phi(\vec{x}) \Big[ \vec{\mu} + \hat{\vec{y}} - \alpha(F_D - \overline{F_D}) \hat{\vec{x}} \Big]} \\
+  \frac{\delta\mathcal{L}}{\delta \vec{u}(\vec{x}, T)} &= \vec{0} = \vec{\mu}(\vec{x}, T) \\
+  \intertext{is evolved backward in time $t:T\to 0$. This renders the viscous term well-posed. The \textcolor{teal}{mask term} has a dampening effect $\vec{\mu} + \vec{\hat{y}} \to 0$.}
+  \intertext{While solving the forward and adjoint systems, we can integrate}
+  \frac{\delta\mathcal{L}}{\delta\Phi(\vec{x})} &= \frac{1}{\tau} \int_0^T \Big(\vec{\mu} + \vec{\hat{y}}-\alpha(F_D - \overline{F_D})\vec{\hat{x}}\Big)\cdot\Big(\vec{u} - \vec{U}\Big) dt.
+  \intertext{Or, for a time-dependent mask function $\Phi(\vec{x}, t)$,}
+  \frac{\delta\mathcal{L}}{\delta\Phi(\vec{x}, t)} &= \frac{1}{\tau} \Big(\vec{\mu} + \vec{\hat{y}}-\alpha(F_D - \overline{F_D})\vec{\hat{x}}\Big)\cdot\Big(\vec{u} - \vec{U}\Big).
+  \intertext{However, the prospect of gradient-based optimization with respect to $\Phi(\vec{x}, t)$ poses a hypothetical problem: $\Phi(\vec{x}, t)$ is a ``smooth'' indicator where, overwhelmingly, we have either $\Phi(\vec{x}, t)=0$ or $\Phi(\vec{x}, t)=1$. }
+\end{align*} 
+\begin{gather}
+  \intertext{Rather than treating $\Phi(\vec{x},t)$ as the optimization parameter, we can instead optimize the signed-distance function $\mathrm{SDF}(\vec{x},t)$ subject to the eikonal equation constraint}
+  |\grad [\mathrm{SDF}(\vec{x}, t)]| = 1 \label{eikonal} \\
+  \intertext{which we must then impose somewhere in our alorithm. The simplest implementation would be to interpret the updated airfoil contour}
+  \Gamma(t) \equiv \{\vec{\xi}(t) \text{  s.t.  } \mathrm{SDF}(\vec{\xi}(t), t)=0\}
+  \intertext{as a boundary condition. Using these data, we can solve \ref{eikonal} and take its solution to be the updated SDF.}
+  \intertext{The mask function}
+  \Phi(\vec{x}) = \frac{1}{2}\big[ 1 - \tanh\big(d^{-1}_r\mathrm{SDF}(\vec{x})\big) \big] \\
+  \frac{\delta \Phi(\vec{x},t)}{\delta \mathrm{SDF}(\vec{x}, t)} = -\frac{1}{2d_r}\mathrm{sech}^2 \big(d^{-1}_r\mathrm{SDF}(\vec{x})\big) \\
+  \frac{\delta\mathcal{L}}{\delta\mathrm{SDF}(\vec{x})} = -\frac{\mathrm{sech}^2 \big(d^{-1}_r\mathrm{SDF}(\vec{x})\big)}{2\tau d_r} \Big(\vec{\mu} + \vec{\hat{y}}-\alpha(F_D - \overline{F_D})\vec{\hat{x}}\Big)\cdot\Big(\vec{u} - \vec{U}\Big)
+\end{gather} 
 % We update the airfoil geometry iteratively by computing 
-% \begin{align}
 %   \grad_{\vec{a}}{\mathcal{L}} &= \int_0^T \big\langle \frac{1}{\tau}\grad_{\vec{a}}\Phi \,(\vec{\mu} \cdot (\vec{u}-\vec{U})) \big\rangle dt + \frac{1}{T} \int_0^T \frac{\langle (u-U) \Phi \rangle \langle v \grad_{\vec{a}}\Phi  \rangle - \langle v \, \Phi \rangle\langle (u - U)\grad_{\vec{a}}\Phi \rangle }{\langle (u-U)\Phi \rangle^2}  dt + \lambda\Big\langle \grad_{\vec{a}}\Phi(1 - \delta_{\vec{x}\in\mathcal{G}}) \Big\rangle \label{eq:lagrangian}
 % \end{align}
 
-Given the airfoil curve coefficients $\vec{a}$, we compute the mask function's gradient $\nabla_{\vec{a}} \Phi$ numerically via finite differences. This calculation can be performed independently (embarrassingly-parallelizable) at each grid point by solving an eigenvalue problem of low rank.
+% Given the airfoil curve coefficients $\vec{a}$, we compute the mask function's gradient $\nabla_{\vec{a}} \Phi$ numerically via finite differences. This calculation can be performed independently (embarrassingly-parallelizable) at each grid point by solving an eigenvalue problem of low rank.
 
-% https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
+% % https://math.stackexchange.com/questions/370996/roots-of-a-finite-fourier-series
 
-The optimization loop is then performed as follows:
-\begin{tight_enumerate}
-  \item At iteration $k$, initialize with the previous iteration's end state $\vec{u}^{k-1}(T)$. 
-  \item Solve \ref{eq:ns} until a statistically-steady state is achieved, at which point $(t=0)$ we record the solution until $t=T$.
-  \item Initialize the adjoint system (\ref{eq:adj_eq}) at $t=T$ with $\vec{\mu}(\vec{x},T) = \vec{0}$.
-  \item Solve \ref{eq:adj_eq} backwards $(t:0\to T)$
-  \item Simultaneously solve for $\grad_{\vec{a}}{\mathcal{L}}$.
-  \item Evolve the Fourier coefficients by a magnitude of $\varepsilon$: $\vec{a}^{k+1} = \vec{a}^k+\varepsilon \grad_{\vec{a}}\mathcal{L}$.
-  \item Repeat until $|\mathcal{J}^{k+1} - \mathcal{J}^{k}|$ is less than some tolerance.
-\end{tight_enumerate}
+% The optimization loop is then performed as follows:
+% \begin{tight_enumerate}
+%   \item At iteration $k$, initialize with the previous iteration's end state $\vec{u}^{k-1}(T)$. 
+%   \item Solve \ref{eq:ns} until a statistically-steady state is achieved, at which point $(t=0)$ we record the solution until $t=T$.
+%   \item Initialize the adjoint system (\ref{eq:adj_eq}) at $t=T$ with $\vec{\mu}(\vec{x},T) = \vec{0}$.
+%   \item Solve \ref{eq:adj_eq} backwards $(t:0\to T)$
+%   \item Simultaneously solve for $\grad_{\vec{a}}{\mathcal{L}}$.
+%   \item Evolve the Fourier coefficients by a magnitude of $\varepsilon$: $\vec{a}^{k+1} = \vec{a}^k+\varepsilon \grad_{\vec{a}}\mathcal{L}$.
+%   \item Repeat until $|\mathcal{J}^{k+1} - \mathcal{J}^{k}|$ is less than some tolerance.
+% \end{tight_enumerate}
 
 
 % Once this technique is demonstrated, we will leverage the flexibility of \texttt{Dedalus} to perform shape optimization in compressible flow regimes. My codes will be adaptive, such that any mask function can be imposed on an arbitrary PDE using volume penalization. Complemented by the adjoint looping optimization toolkit, which is currently in development as a component of NASA Goddard Space Flight Center Grant 80NSSC20K1280, \texttt{Dedalus} will be made available as an open-source engine for shape optimization.
