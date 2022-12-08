@@ -210,14 +210,22 @@ The adjoint system
 \end{align*} 
 \begin{gather}
   \intertext{Rather than treating $\Phi(\vec{x},t)$ as the optimization parameter, we can instead optimize the signed-distance function $\mathrm{SDF}(\vec{x},t)$ subject to the eikonal equation constraint}
-  |\grad [\mathrm{SDF}(\vec{x}, t)]| = 1 \label{eikonal} \\
-  \intertext{which we must then impose somewhere in our alorithm. The simplest implementation would be to interpret the updated airfoil contour}
+  |\grad [f(\vec{x}, t)]| = 1 = (\partial_xf)^2 + (\partial_yf)^2 = (\partial_xf + i\partial_yf)(\partial_xf - i\partial_yf) \label{eikonal} \\
+  \intertext{which we must then impose somewhere in our alorithm. 
+  \textbf{projection:} At iteration $n$, suppose we have performed a loop on distance function $d_n(\vec{x}, t) = \mathrm{SDF}(\vec{x}, t)$, yielding $\frac{\delta\mathcal{L}}{\delta d_n(\vec{x}, t)}$. Assuming}
+  |\grad d_n|=1 = (\partial_xd_n)^2 + (\partial_yd_n)^2 = (\partial_xd_n + i\partial_yd_n)(\partial_xd_n - i\partial_yd_n),
+  \intertext{we want}
+  |\grad d_n + \varepsilon \grad \frac{\delta\mathcal{L}}{\delta d_n} |=1 = (\partial_xd_n+\varepsilon\partial_x \frac{\delta\mathcal{L}}{\delta d_n})^2 + (\partial_yd_n+\varepsilon\partial_y \frac{\delta\mathcal{L}}{\delta d_n})^2.\\
+  0 = 2\varepsilon \Big[\partial_xd_n\partial_x\frac{\delta\mathcal{L}}{\delta d_n}+\partial_y d_n\partial_y\frac{\delta\mathcal{L}}{\delta d_n}\Big] + \varepsilon^2\Big[(\partial_x \frac{\delta\mathcal{L}}{\delta d_n})^2 + (\partial_y \frac{\delta\mathcal{L}}{\delta d_n})^2\Big])
+  \intertext{for $\varepsilon \neq 0$,}
+  \grad d_n \cdot \grad \frac{\delta\mathcal{L}}{\delta d_n}=-\frac{\varepsilon}{2} \grad \frac{\delta\mathcal{L}}{\delta d_n}\cdot \grad \frac{\delta\mathcal{L}}{\delta d_n}
+  \intertext{The simplest implementation would be to interpret the updated airfoil contour}
   \Gamma(t) \equiv \{\vec{\xi}(t) \text{  s.t.  } \mathrm{SDF}(\vec{\xi}(t), t)=0\}
   \intertext{as a boundary condition. Using these data, we can solve \ref{eikonal} and take its solution to be the updated SDF.}
   \intertext{The mask function}
-  \Phi(\vec{x}) = \frac{1}{2}\big[ 1 - \tanh\big(d^{-1}_r\mathrm{SDF}(\vec{x})\big) \big] \\
-  \frac{\delta \Phi(\vec{x},t)}{\delta \mathrm{SDF}(\vec{x}, t)} = -\frac{1}{2d_r}\mathrm{sech}^2 \big(d^{-1}_r\mathrm{SDF}(\vec{x})\big) \\
-  \frac{\delta\mathcal{L}}{\delta\mathrm{SDF}(\vec{x})} = -\frac{\mathrm{sech}^2 \big(d^{-1}_r\mathrm{SDF}(\vec{x})\big)}{2\tau d_r} \Big(\vec{\mu} + \vec{\hat{y}}-\alpha(F_D - \overline{F_D})\vec{\hat{x}}\Big)\cdot\Big(\vec{u} - \vec{U}\Big)
+  \Phi(\vec{x}, t) = \frac{1}{2}\big[ 1 - \tanh\big(d^{-1}_r\mathrm{SDF}(\vec{x}, t)\big) \big] \\
+  \frac{\delta \Phi(\vec{x},t)}{\delta \mathrm{SDF}(\vec{x}, t)} = -\frac{1}{2d_r}\mathrm{sech}^2 \big(d^{-1}_r\mathrm{SDF}(\vec{x}, t)\big) \\
+  \frac{\delta\mathcal{L}}{\delta\mathrm{SDF}(\vec{x}, t)} = -\frac{\mathrm{sech}^2 \big(d^{-1}_r\mathrm{SDF}(\vec{x}, t)\big)}{2\tau d_r} \Big(\vec{\mu} + \vec{\hat{y}}-\alpha(F_D - \overline{F_D})\vec{\hat{x}}\Big)\cdot\Big(\vec{u} - \vec{U}\Big)
 \end{gather} 
 % We update the airfoil geometry iteratively by computing 
 %   \grad_{\vec{a}}{\mathcal{L}} &= \int_0^T \big\langle \frac{1}{\tau}\grad_{\vec{a}}\Phi \,(\vec{\mu} \cdot (\vec{u}-\vec{U})) \big\rangle dt + \frac{1}{T} \int_0^T \frac{\langle (u-U) \Phi \rangle \langle v \grad_{\vec{a}}\Phi  \rangle - \langle v \, \Phi \rangle\langle (u - U)\grad_{\vec{a}}\Phi \rangle }{\langle (u-U)\Phi \rangle^2}  dt + \lambda\Big\langle \grad_{\vec{a}}\Phi(1 - \delta_{\vec{x}\in\mathcal{G}}) \Big\rangle \label{eq:lagrangian}
